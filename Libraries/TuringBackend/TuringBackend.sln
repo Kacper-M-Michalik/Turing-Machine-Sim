@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31702.278
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TuringBackend", "TuringBackend\TuringBackend.csproj", "{E0CCD959-F941-4491-81A3-0883C029ED69}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TuringTesting", "TuringTesting\TuringTesting.csproj", "{C39B7D05-5ECF-47AC-9368-408366587313}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E0CCD959-F941-4491-81A3-0883C029ED69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0CCD959-F941-4491-81A3-0883C029ED69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0CCD959-F941-4491-81A3-0883C029ED69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0CCD959-F941-4491-81A3-0883C029ED69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C39B7D05-5ECF-47AC-9368-408366587313}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C39B7D05-5ECF-47AC-9368-408366587313}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C39B7D05-5ECF-47AC-9368-408366587313}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C39B7D05-5ECF-47AC-9368-408366587313}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2AF5544C-27EA-431B-87FC-D688B9210F44}
+	EndGlobalSection
+EndGlobal
