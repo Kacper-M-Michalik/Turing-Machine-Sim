@@ -23,14 +23,13 @@ namespace TuringBackend.Networking
         public static int MaxClients { get; private set;}
         public static int Port { get; private set; }
 
+        public static Thread ServerThread;
         private static TcpListener ServerTcpListener;
-        private static bool MarkForClosing = false;
-
         public static Dictionary<int, ServerClientSlot> Clients { get; private set; }
 
-        public static Thread ServerThread;
         private static Queue<Packet> PacketProcessingQueue;
         private static Queue<Packet> PacketsBeingProcessed;
+        private static bool MarkForClosing = false;
 
         public static void StartServer(int SetMaxPlayers, int SetPort)
         {
@@ -133,7 +132,6 @@ namespace TuringBackend.Networking
             ServerTcpListener.Stop();
             ServerTcpListener = null;
             Clients = null;
-
             MarkForClosing = false;
             PacketProcessingQueue = null;
             PacketsBeingProcessed = null;

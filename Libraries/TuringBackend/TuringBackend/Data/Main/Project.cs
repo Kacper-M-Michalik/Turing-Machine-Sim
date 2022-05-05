@@ -9,8 +9,15 @@ namespace TuringBackend
     public class Project
     {
         public List<Alphabet> ProjectAlphabets;
-        public List<StateTable> ProjectStateTables;
-        public List<Tape> ProjectTapes;
+
+        //For now we load in files from disk into memory as strings and send the string json contents to the client to rebuild the object from json,
+        //Will replace system with one where it isnt the whole project stored in memory but only recent files, aka. moving to a cache based system.
+        public Dictionary<string, byte[]> FileCacheLookup;
+        //Scrap INITAL plan, implmeneting cahce from beginning
+
+        //Settigns in future:
+        //rules
+        //cache all on startup
 
         public string BasePath;
         public string ProjectFilePath;

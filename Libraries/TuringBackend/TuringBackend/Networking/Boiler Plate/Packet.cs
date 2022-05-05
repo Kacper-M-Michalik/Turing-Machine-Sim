@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace TuringBackend.Networking
 {
     public enum ClientSendPackets
     {
-        CreateFile = 1
+        CreateFile,
+        RequestFile,
+        AlteredFile
     }
 
     public enum ServerSendPackets
     {
-        ErrorNotification = 1
+        ErrorNotification,
+        SentFile
+        //SendFileUpdateNotify? Or FileUpdate
     }
 
     public class Packet : IDisposable

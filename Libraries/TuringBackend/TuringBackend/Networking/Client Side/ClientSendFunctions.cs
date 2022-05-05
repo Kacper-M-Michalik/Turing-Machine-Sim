@@ -12,22 +12,27 @@ namespace TuringBackend.Networking
         {
             Data.InsertPacketLength();
             Client.TCP.SendDataToServer(Data);
+            Data.Dispose();
         }
 
-        public static void RequestProjectFiles(string Folder)
+        public static void RequestProjectFiles(string FileName)
         {
+            Packet Data = new Packet();
 
+            Data.Write((int)ClientSendPackets.RequestFile);
+            Data.Write(FileName);
+
+            SendTCPData(Data);
         }
 
-        public static void CreateFile(string FileString)
+        public static void CreateFile(string FileName)
         {
             Packet Data = new Packet();
 
             Data.Write((int)ClientSendPackets.CreateFile);
-            Data.Write(FileString);
+            Data.Write(FileName);
 
             SendTCPData(Data);
-            Data.Dispose();
         }
     }
 }

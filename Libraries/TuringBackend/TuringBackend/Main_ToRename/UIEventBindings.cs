@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace TuringBackend
 {
@@ -10,5 +9,6 @@ namespace TuringBackend
     {
         public static EventHandler ClientSuccessConnecting;
         public static EventHandler ClientFailedConnecting;
+        public static EventHandler RecievedErrorNotification;
     }
 }

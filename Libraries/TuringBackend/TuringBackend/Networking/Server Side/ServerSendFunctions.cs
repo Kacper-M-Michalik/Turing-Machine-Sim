@@ -13,6 +13,7 @@ namespace TuringBackend.Networking
         {
             Data.InsertPacketLength();
             Server.Clients[ClientID].TCP.SendDataToClient(Data);
+            Data.Dispose();
         }
 
         private static void SendTCPToAllClients(Packet Data)
@@ -25,6 +26,7 @@ namespace TuringBackend.Networking
                     Server.Clients[i].TCP.SendDataToClient(Data);
                 }
             }
+            Data.Dispose();
         }
         #endregion
 
@@ -37,28 +39,17 @@ namespace TuringBackend.Networking
             Data.Write(ErrorString);
 
             SendTCPData(ClientID, Data);
-            Data.Dispose();
         }
 
-        /*
-        //Temp
-        public static void MachineStateChange(int Type)
+        public static void SendFile(int ClientID, string FileName)
         {
             Packet Data = new Packet();
 
-            Data.Write((int)ServerSendPackets.MachineStateChange);
-            Data.Write(Type);
+            Data.Write((int)ServerSendPackets.SentFile);
+            Data.Write(ProjectInstance.LoadedProject.FileCacheLookup[FileName]);
 
-            SendTCPToAllClients(Data);
-            Data.Dispose();
+            SendTCPData(ClientID, Data);
         }
-        */
-        //redo connect welcome
-        //change window/update UI
-        //change project settings
-        //change diagram
-        //change tape status -> step so on
-        //download project
         #endregion
     }
 }

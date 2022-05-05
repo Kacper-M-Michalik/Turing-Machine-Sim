@@ -29,7 +29,7 @@ namespace TuringBackend
             ConnectToServer("127.0.0.1", Port);
         }
 
-        public static void CloseClient()
+        public static void Disconnect()
         {
             Client.Disconnect();
         }
