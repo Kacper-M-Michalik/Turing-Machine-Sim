@@ -24,15 +24,15 @@ namespace TuringBackend
             if (LoadedProject != null)
             {
                 CustomConsole.Log("Loader Successful");
-                Server.StartServer(MaxClients, Port);                
+                TuringServer.StartServer(MaxClients, Port);                
             }
         }
 
         public static void CloseProject()
         {
-            if (Server.IsServerOn)
+            if (TuringServer.IsServerOn)
             {
-                Server.CloseServer();
+                TuringServer.CloseServer();
             }
         }
     }

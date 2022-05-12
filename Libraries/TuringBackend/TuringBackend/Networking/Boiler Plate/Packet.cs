@@ -8,14 +8,15 @@ namespace TuringBackend.Networking
     {
         CreateFile,
         RequestFile,
-        AlteredFile
+        UpdatedFile,
+        UnsubscribeFromUpdatesForFile
     }
 
     public enum ServerSendPackets
     {
         ErrorNotification,
-        SentFile
-        //SendFileUpdateNotify? Or FileUpdate
+        SentFile, 
+        FileUpdated
     }
 
     public class Packet : IDisposable
@@ -42,6 +43,7 @@ namespace TuringBackend.Networking
 
         public void Write(byte[] Data)
         {
+            Write(Data.Length);
             TemporaryWriteBuffer.AddRange(Data);
         }
 
@@ -78,6 +80,16 @@ namespace TuringBackend.Networking
 
         public byte[] ReadBytes(int Length, bool MovePointer = true)
         {
+            if (ReadPointerPosition + Length > ReadBuffer.Length) throw new Exception("ReadBytes Length out of bounds!");
+            byte[] Result = new byte[Length];
+            Array.Copy(ReadBuffer, Result, Length);
+            if (MovePointer) ReadPointerPosition += Length;
+            return Result;
+        }
+
+        public byte[] ReadBytes(bool MovePointer = true)
+        {
+            int Length = ReadInt();
             if (ReadPointerPosition + Length > ReadBuffer.Length) throw new Exception("ReadBytes Length out of bounds!");
             byte[] Result = new byte[Length];
             Array.Copy(ReadBuffer, Result, Length);

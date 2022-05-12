@@ -52,9 +52,10 @@ namespace TuringBackend
 
             return new Project()
             {
-                BasePath = Directory.GetParent(CorrectPath).ToString()+"\\",
+                BasePath = Directory.GetParent(CorrectPath).ToString() + "\\",
                 ProjectFilePath = CorrectPath,
-                FileCacheLookup = new Dictionary<string, byte[]>()
+                FileCacheLookup = new Dictionary<string, byte[]>(),
+                FileUpdateSubscriptionLookup = new Dictionary<string, HashSet<int>>()
             };
 
         }

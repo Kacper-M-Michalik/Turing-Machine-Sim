@@ -15,12 +15,13 @@ namespace TuringBackend.Networking
             Data.Dispose();
         }
 
-        public static void RequestProjectFiles(string FileName)
+        public static void RequestProjectFiles(string FileName, bool RecieveUpdates)
         {
             Packet Data = new Packet();
 
             Data.Write((int)ClientSendPackets.RequestFile);
             Data.Write(FileName);
+            Data.Write(RecieveUpdates);
 
             SendTCPData(Data);
         }

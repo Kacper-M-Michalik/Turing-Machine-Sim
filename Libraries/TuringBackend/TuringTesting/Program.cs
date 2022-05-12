@@ -32,17 +32,17 @@ namespace TuringTesting
                         ClientInstance.Disconnect();
                         break;
                     case ("SERVERID"):
-                        CustomConsole.Log("SERVER THREAD: " + Server.ServerThread.ManagedThreadId.ToString());
+                        CustomConsole.Log("SERVER THREAD: " + TuringServer.ServerThread.ManagedThreadId.ToString());
                         break;
                     case ("CREATE FILE"):
                         ClientSendFunctions.CreateFile("test.tape");
                         break;
                     case ("REQUEST FILE"):
-                        ClientSendFunctions.RequestProjectFiles("a.tape");
-                        ClientSendFunctions.RequestProjectFiles("testtape2.tape");
+                        ClientSendFunctions.RequestProjectFiles("a.tape", false);
+                        ClientSendFunctions.RequestProjectFiles("testtape2.tape", true);
                         break;
                     case ("KILL CLIENT"):
-                        Server.Clients[0].DisconnectClientFromServer();
+                        TuringServer.Clients[0].DisconnectClientFromServer();
                         break;
                     case ("BREAKPOINT"):
                         ProjectInstance.LoadedProject.GetType();

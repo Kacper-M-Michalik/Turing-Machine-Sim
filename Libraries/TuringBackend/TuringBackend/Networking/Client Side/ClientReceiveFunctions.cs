@@ -13,7 +13,8 @@ namespace TuringBackend.Networking
         public static Dictionary<int, PacketFunctionPointer> PacketToFunction = new Dictionary<int, PacketFunctionPointer>()
         {
             {(int)ServerSendPackets.ErrorNotification, ReceiveErrorNotification},
-            {(int)ServerSendPackets.SentFile, ReceivedFileFromServer}
+            {(int)ServerSendPackets.SentFile, ReceivedFileFromServer},
+            {(int)ServerSendPackets.FileUpdated, ReceivedFileUpdateFromServer}
         };
 
 
@@ -25,7 +26,13 @@ namespace TuringBackend.Networking
         public static void ReceivedFileFromServer(Packet Data)
         {
             CustomConsole.Log("CLIENT: Recieved File");
+            //need to have some sort of window to file context
+            //when openining file, create window, window subrcibes to reiceive file, file gets sent to window
         }
 
+        public static void ReceivedFileUpdateFromServer(Packet Data)
+        {
+            CustomConsole.Log("CLIENT: Recieved File");
+        }
     }
 }

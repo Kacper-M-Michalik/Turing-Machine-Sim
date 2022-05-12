@@ -14,17 +14,20 @@ namespace TuringBackend.Networking
         public static Dictionary<int, PacketFunctionPointer> PacketToFunction = new Dictionary<int, PacketFunctionPointer>()
         {
             {(int)ClientSendPackets.CreateFile, UserCreatedNewFile},
-            {(int)ClientSendPackets.RequestFile, UserRequestedFile}
+            {(int)ClientSendPackets.RequestFile, UserRequestedFile},
+            {(int)ClientSendPackets.UpdatedFile, UserEditedFile},
+            {(int)ClientSendPackets.UnsubscribeFromUpdatesForFile, UserUnsubscribedFromFileUpdates}
         };
+
 
         #region Main
 
         /* -PACKET LAYOUT-
-         * FILE STRING (IS FULL LOCAL DIRECTORY, NAME AND EXTENSION) (STRING)
+         * string File Name (IS FULL LOCAL DIRECTORY, NAME AND EXTENSION)
          */
         public static void UserCreatedNewFile(int SenderClientID, Packet Data)
         {
-            CustomConsole.Log("SERVER INSTRUCTION: USER CREATED NEW FILE");
+            CustomConsole.Log("SERVER INSTRUCTION: User created file.");
 
             string FileName = Data.ReadString();
 
@@ -56,13 +59,15 @@ namespace TuringBackend.Networking
         }
 
         /* -PACKET LAYOUT-
-         * FILE STRING (IS FULL LOCAL DIRECTORY, NAME AND EXTENSION) (STRING)
+         * string File Name (IS FULL LOCAL DIRECTORY, NAME AND EXTENSION)
+         * bool Subscrive To Updates (Whether or not client wants to recieve new version of file when it is updated)
          */
         public static void UserRequestedFile(int SenderClientID, Packet Data)
         {
-            CustomConsole.Log("SERVER INSTRUCTION: USER REQUESTED FILE");
+            CustomConsole.Log("SERVER INSTRUCTION: User requested file.");
 
             string FileName = Data.ReadString();
+            bool SubscribeToUpdates = Data.ReadBool();
 
             if (ProjectInstance.LoadedProject.FileCacheLookup.ContainsKey(FileName))
             {
@@ -83,6 +88,18 @@ namespace TuringBackend.Networking
                         ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to retreive file - Server failed to load it.");
                     }
 
+                    if (SubscribeToUpdates)
+                    {
+                        if (ProjectInstance.LoadedProject.FileUpdateSubscriptionLookup.ContainsKey(FileName))
+                        {
+                            ProjectInstance.LoadedProject.FileUpdateSubscriptionLookup[FileName].Add(SenderClientID);
+                        }
+                        else
+                        {
+                            ProjectInstance.LoadedProject.FileUpdateSubscriptionLookup.Add(FileName, new HashSet<int>() { SenderClientID });
+                        }
+                    }
+
                     ServerSendFunctions.SendFile(SenderClientID, FileName);
                 }
                 else
@@ -91,6 +108,38 @@ namespace TuringBackend.Networking
                 }
             }
             
+        }
+
+        /* -PACKET LAYOUT-
+         * string FILE STRING (IS FULL LOCAL DIRECTORY, NAME AND EXTENSION)
+         * byte[] NEW FILE DATA
+         */
+        public static void UserEditedFile(int SenderClientID, Packet Data)
+        {
+            CustomConsole.Log("SERVER INSTRUCTION: User edited file.");
+
+            string FileName = Data.ReadString();
+
+            ProjectInstance.LoadedProject.FileCacheLookup[FileName] = Data.ReadBytes();
+
+            File.WriteAllBytes(ProjectInstance.LoadedProject.BasePath + FileName, ProjectInstance.LoadedProject.FileCacheLookup[FileName]);
+
+            foreach (int Client in ProjectInstance.LoadedProject.FileUpdateSubscriptionLookup[FileName])
+            {
+                ServerSendFunctions.SendFileUpdate(Client, FileName);
+            }
+        }
+
+        /* -PACKET LAYOUT-
+         * string FILE STRING (IS FULL LOCAL DIRECTORY, NAME AND EXTENSION)
+         */
+        public static void UserUnsubscribedFromFileUpdates(int SenderClientID, Packet Data)
+        {
+            CustomConsole.Log("SERVER INSTRUCTION: User no longer viewing file.");
+
+            string FileName = Data.ReadString();
+
+            ProjectInstance.LoadedProject.FileUpdateSubscriptionLookup[FileName].Remove(SenderClientID);
         }
 
         #endregion

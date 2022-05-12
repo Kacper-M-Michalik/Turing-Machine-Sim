@@ -13,7 +13,7 @@ namespace TuringBackend
         //For now we load in files from disk into memory as strings and send the string json contents to the client to rebuild the object from json,
         //Will replace system with one where it isnt the whole project stored in memory but only recent files, aka. moving to a cache based system.
         public Dictionary<string, byte[]> FileCacheLookup;
-        //Scrap INITAL plan, implmeneting cahce from beginning
+        public Dictionary<string, HashSet<int>> FileUpdateSubscriptionLookup;
 
         //Settigns in future:
         //rules

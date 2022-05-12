@@ -16,12 +16,12 @@ namespace TuringBackend.Networking
                 return TCP.ConnectionSocket != null ? TCP.ConnectionSocket.Connected : false;
             }
         }
-        public static TCPInterface TCP = new TCPInterface();
-        private static int DataBufferSize = 4096;
+        public static TCPInterface TCP { get; private set; } = new TCPInterface();
+        static int DataBufferSize = 4096;
 
         static IPAddress TargetIP;
         static int TargetPort;
-        private static int Timeout = 1000;   
+        static int Timeout = 1000;   
 
         public class TCPInterface
         {
