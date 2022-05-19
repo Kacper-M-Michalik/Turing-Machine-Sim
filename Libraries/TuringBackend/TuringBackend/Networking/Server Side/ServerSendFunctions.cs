@@ -52,15 +52,14 @@ namespace TuringBackend.Networking
             SendTCPData(ClientID, Data);
         }
 
-        //unnecessary?
+        //Unnecessary?
         public static void SendFileUpdate(int ClientID, string FileName)
         {
             Packet Data = new Packet();
 
             Data.Write((int)ServerSendPackets.UpdatedFile);
-
-            //
-
+            Data.Write(ProjectInstance.LoadedProject.UpdateSubscribersLookup[FileName].VersionNumber);
+            Data.Write(ProjectInstance.LoadedProject.FileCacheLookup[FileName].FileData);
 
             SendTCPData(ClientID, Data);
         }

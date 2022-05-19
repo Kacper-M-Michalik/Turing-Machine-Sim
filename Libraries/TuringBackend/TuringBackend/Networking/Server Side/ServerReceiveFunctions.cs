@@ -108,6 +108,8 @@ namespace TuringBackend.Networking
             UpdateFileData UpdateFile = ProjectInstance.LoadedProject.UpdateSubscribersLookup[FileName];
             if (UpdateFile.VersionNumber == FileVersion)
             {
+                UpdateFile.VersionNumber++;
+
                 CacheFileData CacheFile = ProjectInstance.LoadedProject.FileCacheLookup[FileName];
                 CacheFile.FileData = Data.ReadBytes();
                 CacheFile.ResetExpiryTimer();
