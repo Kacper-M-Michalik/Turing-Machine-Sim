@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TuringBackend.Actions
 {
-    public class WriteAction : Action
+    public class WriteAction : TuringAction
     {
         public string WriteValue;
         public override void Execute(TuringMachine Machine)

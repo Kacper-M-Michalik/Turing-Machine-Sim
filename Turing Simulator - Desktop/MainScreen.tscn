@@ -20,4 +20,25 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[connection signal="pressed" from="Button" to="Button" method="On_Button_Pressed"]
+[node name="FileDialog" type="FileDialog" parent="."]
+visible = true
+margin_left = 350.0
+margin_top = 76.0
+margin_right = 939.0
+margin_bottom = 352.0
+popup_exclusive = true
+window_title = "Open a File"
+resizable = true
+mode = 0
+access = 2
+filters = PoolStringArray( "*.tproj; Turing Project Files" )
+show_hidden_files = true
+current_dir = "/Professional Programming/MAIN/Turing-Machine-Sim/Turing Simulator - Desktop"
+current_path = "/Professional Programming/MAIN/Turing-Machine-Sim/Turing Simulator - Desktop/"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[connection signal="pressed" from="Button" to="Button" method="LoadProjectButtonPressed"]
+[connection signal="dir_selected" from="FileDialog" to="Button" method="OnProjectPathSelected"]
+[connection signal="file_selected" from="FileDialog" to="Button" method="OnProjectPathSelected"]

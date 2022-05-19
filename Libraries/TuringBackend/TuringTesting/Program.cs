@@ -16,10 +16,9 @@ namespace TuringTesting
             bool Continue = true;
             while (Continue)
             {
-                Client.ProcessPackets();
-
+                Client.ProcessPackets();                
                 string Option = Console.ReadLine();
-
+                
                 switch (Option.ToUpper())
                 {
                     case ("SERVER"):
@@ -32,7 +31,7 @@ namespace TuringTesting
                         ClientInstance.Disconnect();
                         break;
                     case ("SERVERID"):
-                        CustomConsole.Log("SERVER THREAD: " + TuringServer.ServerThread.ManagedThreadId.ToString());
+                        CustomConsole.Log("SERVER THREAD: " + Server.ServerThread.ManagedThreadId.ToString());
                         break;
                     case ("CREATE FILE"):
                         ClientSendFunctions.CreateFile("test.tape");
@@ -42,7 +41,7 @@ namespace TuringTesting
                         ClientSendFunctions.RequestProjectFiles("testtape2.tape", true);
                         break;
                     case ("KILL CLIENT"):
-                        TuringServer.Clients[0].DisconnectClientFromServer();
+                        Server.Clients[0].DisconnectClientFromServer();
                         break;
                     case ("BREAKPOINT"):
                         ProjectInstance.LoadedProject.GetType();
@@ -53,8 +52,8 @@ namespace TuringTesting
                     default:
                         break;
                 }
+                
             }
-
         }
 
     }

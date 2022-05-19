@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TuringBackend.Actions
 {
-    public class MoveHeadAction : Action
+    public class MoveHeadAction : TuringAction
     {
         public int MoveValue;
         public override void Execute(TuringMachine Machine)

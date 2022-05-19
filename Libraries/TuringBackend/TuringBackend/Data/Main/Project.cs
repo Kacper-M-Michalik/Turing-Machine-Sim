@@ -3,17 +3,46 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace TuringBackend
 {
+    public class CacheFileData
+    {
+        public byte[] FileData;
+        public long ExpiryTimer;
+
+        public CacheFileData(byte[] SetFileData)
+        {
+            FileData = SetFileData;
+            ExpiryTimer = 0;
+        }
+
+        public void ResetExpiryTimer()
+        {
+            ExpiryTimer = 0;
+        }
+    }
+
+    public class UpdateFileData
+    {
+        public int VersionNumber;
+        public HashSet<int> SubscriberIDs;
+
+        public UpdateFileData()
+        {
+            VersionNumber = 1;
+            SubscriberIDs = new HashSet<int>();
+        }
+    }
+
     public class Project
     {
         public List<Alphabet> ProjectAlphabets;
 
-        //For now we load in files from disk into memory as strings and send the string json contents to the client to rebuild the object from json,
-        //Will replace system with one where it isnt the whole project stored in memory but only recent files, aka. moving to a cache based system.
-        public Dictionary<string, byte[]> FileCacheLookup;
-        public Dictionary<string, HashSet<int>> FileUpdateSubscriptionLookup;
+        //Cache System
+        public Dictionary<string, CacheFileData> FileCacheLookup;
+        public Dictionary<string, UpdateFileData> UpdateSubscribersLookup;
 
         //Settigns in future:
         //rules
@@ -22,12 +51,14 @@ namespace TuringBackend
         public string BasePath;
         public string ProjectFilePath;
 
+
+        //Rules get sent to client -> client Ui responsible for telling uiser cant run turing with these rules, unless is server simulated turing
+        //Allow server to simualte hese windwos as to have mutiple users have access to same window not only file:
         //windows
         //turing machine
         //data visualization
         //flow diagram viewer
         //alphabet manager
         //project settings
-        //main windwo for server???
     }
 }

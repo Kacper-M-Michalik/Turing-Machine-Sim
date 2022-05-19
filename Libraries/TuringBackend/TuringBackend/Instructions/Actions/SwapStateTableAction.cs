@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TuringBackend.Actions
 {
-    public class SwapStateTableAction : Action
+    public class SwapStateTableAction : TuringAction
     {
         public string NewStateTableID;
         public override void Execute(TuringMachine Machine)

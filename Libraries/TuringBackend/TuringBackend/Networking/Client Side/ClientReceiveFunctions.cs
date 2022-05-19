@@ -14,7 +14,7 @@ namespace TuringBackend.Networking
         {
             {(int)ServerSendPackets.ErrorNotification, ReceiveErrorNotification},
             {(int)ServerSendPackets.SentFile, ReceivedFileFromServer},
-            {(int)ServerSendPackets.FileUpdated, ReceivedFileUpdateFromServer}
+            {(int)ServerSendPackets.UpdatedFile, ReceivedFileUpdateFromServer}
         };
 
 

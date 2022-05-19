@@ -7,16 +7,23 @@ namespace TuringBackend.Networking
     public enum ClientSendPackets
     {
         CreateFile,
+        DeleteFile,
+        RenameFile,
+        MoveFile,
         RequestFile,
-        UpdatedFile,
+        UpdateFile,
         UnsubscribeFromUpdatesForFile
     }
 
     public enum ServerSendPackets
     {
         ErrorNotification,
+        SentProjectFiles,
+        UpdatedProjectFiles,
         SentFile, 
-        FileUpdated
+        UpdatedFile,
+        DeletedFile,
+        RenamedFile
     }
 
     public class Packet : IDisposable

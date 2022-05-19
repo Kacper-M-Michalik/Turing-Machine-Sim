@@ -3,30 +3,34 @@ using System;
 using TuringBackend;
 using TuringBackend.Debugging;
 
-public class TestingScript : Button
+public class TestingScript : Control
 {
+    public FileDialog FD;
+
     public override void _Ready()
     {
+        FD = (FileDialog)GetNode("/root/Control/FileDialog");
         CustomConsole.LogPointer = delegate (string Message) { GD.Print(Message); }; ;
     }
         
-    public void On_Button_Pressed()
+    public void LoadProjectButtonPressed()
     {
-        string FilePath;
-        using (System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog())
-        {
-            openFileDialog.InitialDirectory = "c:\\";
-            openFileDialog.Filter = "tproj files (*.tproj)|*.tproj|All files (*.*)|*.*";
-            openFileDialog.FilterIndex = 1;
-            openFileDialog.RestoreDirectory = true;
-
-            if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                FilePath = openFileDialog.FileName;                
-            }
-        }
-        CustomConsole.Log("TEst");
-        //ProjectInstance.StartProjectServer()
+        FD.Popup_();
     }
-    
+
+    public void OnProjectPathSelected(string Path)
+    {
+        ProjectInstance.StartProjectServer(Path, 2, 28104);
+        ClientInstance.ConnectToLocalServer(28104);
+    }
+
+    public override void _Notification(int ID)
+    {
+        if (ID == MainLoop.NotificationWmQuitRequest)
+        {
+            ClientInstance.Disconnect();
+            ProjectInstance.CloseProject();
+            GetTree().Quit();
+        }
+    }
 }

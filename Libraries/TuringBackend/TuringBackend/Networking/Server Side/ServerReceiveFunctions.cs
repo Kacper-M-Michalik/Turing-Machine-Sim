@@ -15,8 +15,8 @@ namespace TuringBackend.Networking
         {
             {(int)ClientSendPackets.CreateFile, UserCreatedNewFile},
             {(int)ClientSendPackets.RequestFile, UserRequestedFile},
-            {(int)ClientSendPackets.UpdatedFile, UserEditedFile},
-            {(int)ClientSendPackets.UnsubscribeFromUpdatesForFile, UserUnsubscribedFromFileUpdates}
+            {(int)ClientSendPackets.UpdateFile, UserEditedFile},
+            {(int)ClientSendPackets.UnsubscribeFromUpdatesForFile, UserUnsubscribedFromFileUpdates}        
         };
 
 
@@ -69,49 +69,24 @@ namespace TuringBackend.Networking
             string FileName = Data.ReadString();
             bool SubscribeToUpdates = Data.ReadBool();
 
-            if (ProjectInstance.LoadedProject.FileCacheLookup.ContainsKey(FileName))
+            if (!ProjectInstance.LoadedProject.FileCacheLookup.ContainsKey(FileName))
             {
-                ServerSendFunctions.SendFile(SenderClientID, FileName);
-            }
-            else
-            {
-                string FullFileDirectory = ProjectInstance.LoadedProject.BasePath + FileName;
-                if (File.Exists(FullFileDirectory))
+                if (!Loader.LoadFileIntoCache(FileName))
                 {
-                    try
-                    {
-                        ProjectInstance.LoadedProject.FileCacheLookup.Add(FileName, File.ReadAllBytes(FullFileDirectory));
-                    }
-                    catch (Exception E)
-                    {
-                        CustomConsole.Log("ServerRecieve Error: UserRequestedFile - " + E.ToString());
-                        ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to retreive file - Server failed to load it.");
-                    }
-
-                    if (SubscribeToUpdates)
-                    {
-                        if (ProjectInstance.LoadedProject.FileUpdateSubscriptionLookup.ContainsKey(FileName))
-                        {
-                            ProjectInstance.LoadedProject.FileUpdateSubscriptionLookup[FileName].Add(SenderClientID);
-                        }
-                        else
-                        {
-                            ProjectInstance.LoadedProject.FileUpdateSubscriptionLookup.Add(FileName, new HashSet<int>() { SenderClientID });
-                        }
-                    }
-
-                    ServerSendFunctions.SendFile(SenderClientID, FileName);
+                    ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to retreive file - Server failed to load it.");
+                    return;
                 }
-                else
-                {
-                    ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to retreive file - File doesn't exist.");
-                }
-            }
+            }    
             
+            if (SubscribeToUpdates) ProjectInstance.LoadedProject.UpdateSubscribersLookup[FileName].SubscriberIDs.Add(SenderClientID);
+
+            ProjectInstance.LoadedProject.FileCacheLookup[FileName].ResetExpiryTimer();
+            ServerSendFunctions.SendFile(SenderClientID, FileName);
         }
 
         /* -PACKET LAYOUT-
          * string FILE STRING (IS FULL LOCAL DIRECTORY, NAME AND EXTENSION)
+         * int FILE VERSION
          * byte[] NEW FILE DATA
          */
         public static void UserEditedFile(int SenderClientID, Packet Data)
@@ -119,14 +94,36 @@ namespace TuringBackend.Networking
             CustomConsole.Log("SERVER INSTRUCTION: User edited file.");
 
             string FileName = Data.ReadString();
+            int FileVersion = Data.ReadInt();
 
-            ProjectInstance.LoadedProject.FileCacheLookup[FileName] = Data.ReadBytes();
-
-            File.WriteAllBytes(ProjectInstance.LoadedProject.BasePath + FileName, ProjectInstance.LoadedProject.FileCacheLookup[FileName]);
-
-            foreach (int Client in ProjectInstance.LoadedProject.FileUpdateSubscriptionLookup[FileName])
+            if (!ProjectInstance.LoadedProject.FileCacheLookup.ContainsKey(FileName))
             {
-                ServerSendFunctions.SendFileUpdate(Client, FileName);
+                if (!Loader.LoadFileIntoCache(FileName))
+                {
+                    ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to update file - Server failed to load it.");
+                    return;
+                }
+            }
+
+            UpdateFileData UpdateFile = ProjectInstance.LoadedProject.UpdateSubscribersLookup[FileName];
+            if (UpdateFile.VersionNumber == FileVersion)
+            {
+                CacheFileData CacheFile = ProjectInstance.LoadedProject.FileCacheLookup[FileName];
+                CacheFile.FileData = Data.ReadBytes();
+                CacheFile.ResetExpiryTimer();
+
+                //Replace with async here later
+                File.WriteAllBytes(ProjectInstance.LoadedProject.BasePath + FileName, CacheFile.FileData);
+
+                foreach (int Client in UpdateFile.SubscriberIDs)
+                {
+                    ServerSendFunctions.SendFileUpdate(Client, FileName);
+                }
+            }
+            else
+            {
+                ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to update file - You updated an older version of the file.");
+                return;
             }
         }
 
@@ -139,7 +136,7 @@ namespace TuringBackend.Networking
 
             string FileName = Data.ReadString();
 
-            ProjectInstance.LoadedProject.FileUpdateSubscriptionLookup[FileName].Remove(SenderClientID);
+            ProjectInstance.LoadedProject.UpdateSubscribersLookup[FileName].SubscriberIDs.Remove(SenderClientID);
         }
 
         #endregion

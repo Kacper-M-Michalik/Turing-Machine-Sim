@@ -4,7 +4,6 @@
     <RootNamespace>TuringSimulatorDesktop</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="TuringBackend">
       <HintPath>..\Libraries\TuringBackend\TuringBackend\bin\Debug\net5.0\TuringBackend.dll</HintPath>
     </Reference>

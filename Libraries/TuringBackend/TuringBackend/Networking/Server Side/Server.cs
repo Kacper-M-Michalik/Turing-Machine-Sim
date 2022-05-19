@@ -10,18 +10,13 @@ using TuringBackend.Debugging;
 
 namespace TuringBackend.Networking
 {
-    public static class TuringServer
+    public static class Server
     {
-        public static bool IsServerOn
-        {
-            get
-            {
-                return ServerTcpListener != null ? ServerTcpListener.Server.IsBound : false;
-            }
-        }
+        public static bool IsServerOn;
 
-        public static int MaxClients { get; private set;}
+        public static int MaxClients { get; private set; }
         public static int Port { get; private set; }
+        public static long CacheExpiryTime { get; private set; } = TimeSpan.FromMinutes(5).Ticks;
 
         public static Thread ServerThread { get; private set; }
         static TcpListener ServerTcpListener;
@@ -30,26 +25,14 @@ namespace TuringBackend.Networking
         static Queue<Packet> PacketProcessingQueue;
         static Queue<Packet> PacketsBeingProcessed;
         static bool MarkForClosing = false;
+        static long LastTick;
 
         public static void StartServer(int SetMaxPlayers, int SetPort)
         {
+            if (ProjectInstance.LoadedProject == null) throw new Exception("Cannot start server with unloaded project");
+
             MaxClients = SetMaxPlayers;
             Port = SetPort;
-
-            Clients = new Dictionary<int, ServerClientSlot>();
-            for (int i = 0; i < MaxClients; i++)
-            {
-                Clients.Add(i, new ServerClientSlot(i));
-            }
-
-            ServerTcpListener = new TcpListener(IPAddress.Any, Port);
-            ServerTcpListener.Start();
-            CustomConsole.Log("SERVER: Server Started on port: " + Port.ToString());
-
-            ServerTcpListener.BeginAcceptTcpClient(new AsyncCallback(NewTCPClientConnectedCallback), null);
-            CustomConsole.Log("SERVER: Server Listening for new clients");
-
-            PacketProcessingQueue = new Queue<Packet>();
 
             ServerThread = new Thread(RunServer);
             ServerThread.Start();
@@ -69,10 +52,28 @@ namespace TuringBackend.Networking
             MarkForClosing = true;
         }
 
-
         private static void RunServer()
         {
             CustomConsole.Log("THREAD NOTIF SERVER: SERVER INIT ON THREAD " + Thread.CurrentThread.ManagedThreadId.ToString());
+
+            IsServerOn = true;
+            MarkForClosing = false;
+            LastTick = DateTime.UtcNow.Ticks;
+
+            Clients = new Dictionary<int, ServerClientSlot>();
+            for (int i = 0; i < MaxClients; i++)
+            {
+                Clients.Add(i, new ServerClientSlot(i));
+            }
+
+            ServerTcpListener = new TcpListener(IPAddress.Any, Port);
+            ServerTcpListener.Start();
+
+            CustomConsole.Log("SERVER: Server Started on port: " + Port.ToString());
+
+            ServerTcpListener.BeginAcceptTcpClient(new AsyncCallback(NewTCPClientConnectedCallback), null);
+
+            PacketProcessingQueue = new Queue<Packet>();
 
             while (!MarkForClosing)
             {
@@ -100,23 +101,31 @@ namespace TuringBackend.Networking
                     }
 
                 }
+
+                long CurrentTime = DateTime.UtcNow.Ticks;
+                foreach (KeyValuePair<string, CacheFileData> CachedFile in ProjectInstance.LoadedProject.FileCacheLookup)
+                {
+                    CachedFile.Value.ExpiryTimer += CurrentTime - LastTick;
+
+                    if (CachedFile.Value.ExpiryTimer > CacheExpiryTime)
+                    {
+                        ProjectInstance.LoadedProject.FileCacheLookup.Remove(CachedFile.Key);
+                    }
+                }
+                LastTick = CurrentTime;
             }
 
-            ShutDown();            
+            ShutDown();
         }
 
         private static void NewTCPClientConnectedCallback(IAsyncResult Result)
-        {            
-            if (!IsServerOn)
-            {
-                return;
-            }
+        {
+            if (!IsServerOn) return;
 
             CustomConsole.Log("SERVER: Server dealing with new connection on thread " + Thread.CurrentThread.ManagedThreadId.ToString());
-            
+
             TcpClient NewClient = ServerTcpListener.EndAcceptTcpClient(Result);
 
-            ///Possible multithread risk
             ServerTcpListener.BeginAcceptTcpClient(new AsyncCallback(NewTCPClientConnectedCallback), null);
 
             for (int i = 0; i < MaxClients; i++)
@@ -134,18 +143,16 @@ namespace TuringBackend.Networking
         }
 
         private static void ShutDown()
-        { 
+        {
+            IsServerOn = false;
             ServerTcpListener.Stop();
             ServerTcpListener = null;
             Clients = null;
-            MarkForClosing = false;
             PacketProcessingQueue = null;
             PacketsBeingProcessed = null;
-            ServerThread = null;
 
             CustomConsole.Log("SERVER: Server Closed");
         }
-
     }
 
     public class ServerClientSlot
@@ -188,7 +195,7 @@ namespace TuringBackend.Networking
                 PacketCurrentlyBeingRebuilt = new Packet();
 
                 DataStream.BeginRead(ReceiveDataBuffer, 0, DataBufferSize, OnReceiveDataFromClient, null);
-                
+
                 CustomConsole.Log("SERVER: Client at " + ConnectionSocket.Client.RemoteEndPoint.ToString() + " has been connected to server!");
             }
 
@@ -205,13 +212,13 @@ namespace TuringBackend.Networking
             }
 
             private void OnReceiveDataFromClient(IAsyncResult Result)
-            {               
+            {
                 try
                 {
                     if (ConnectionSocket == null) return;
 
                     CustomConsole.Log("THREAD NOTIF SERVER: Server dealing with incoming data on thread " + Thread.CurrentThread.ManagedThreadId.ToString());
-                    int IncomingDataLength = DataStream.EndRead(Result);    
+                    int IncomingDataLength = DataStream.EndRead(Result);
 
                     if (IncomingDataLength == 0)
                     {
@@ -221,9 +228,9 @@ namespace TuringBackend.Networking
                     }
 
                     byte[] UsefuldataBuffer = new byte[IncomingDataLength];
-                    Array.Copy(ReceiveDataBuffer, UsefuldataBuffer, IncomingDataLength);                    
-                    
-                    CustomConsole.Log("SERVER: Server is receiving data from client " + ID.ToString() + "!");   
+                    Array.Copy(ReceiveDataBuffer, UsefuldataBuffer, IncomingDataLength);
+
+                    CustomConsole.Log("SERVER: Server is receiving data from client " + ID.ToString() + "!");
 
                     PacketCurrentlyBeingRebuilt.Write(UsefuldataBuffer);
                     PacketCurrentlyBeingRebuilt.SaveTemporaryBufferToPernamentReadBuffer();
@@ -235,7 +242,7 @@ namespace TuringBackend.Networking
                         while (PacketCurrentlyBeingRebuilt.UnreadLength() >= PacketLength && PacketCurrentlyBeingRebuilt.UnreadLength() >= 4)
                         {
                             Packet ProcessedPacket = new Packet(PacketCurrentlyBeingRebuilt.ReadBytes(PacketLength));
-                            TuringServer.AddPacketToProcessOnServerThread(ID, ProcessedPacket);
+                            Server.AddPacketToProcessOnServerThread(ID, ProcessedPacket);
 
                             if (PacketCurrentlyBeingRebuilt.UnreadLength() >= 4)
                             {
@@ -255,6 +262,7 @@ namespace TuringBackend.Networking
                 }
                 catch (Exception E)
                 {
+                    CustomConsole.Log("knew irt");
                     CustomConsole.Log(E.ToString());
                 }
             }
@@ -265,7 +273,7 @@ namespace TuringBackend.Networking
                 ConnectionSocket = null;
                 DataStream = null;
                 ReceiveDataBuffer = null;
-                PacketCurrentlyBeingRebuilt = null;                
+                PacketCurrentlyBeingRebuilt = null;
             }
 
         }

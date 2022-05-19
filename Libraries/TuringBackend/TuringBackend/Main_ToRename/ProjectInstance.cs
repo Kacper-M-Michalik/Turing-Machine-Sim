@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using TuringBackend.Networking;
 using TuringBackend.Debugging;
+using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace TuringBackend
 {
@@ -24,16 +26,14 @@ namespace TuringBackend
             if (LoadedProject != null)
             {
                 CustomConsole.Log("Loader Successful");
-                TuringServer.StartServer(MaxClients, Port);                
+                Server.StartServer(MaxClients, Port);                
             }
         }
 
         public static void CloseProject()
-        {
-            if (TuringServer.IsServerOn)
-            {
-                TuringServer.CloseServer();
-            }
+        {           
+            Server.CloseServer();
+            //Do saving here
         }
     }
 }

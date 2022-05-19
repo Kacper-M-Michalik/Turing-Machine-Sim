@@ -12,18 +12,18 @@ namespace TuringBackend.Networking
         private static void SendTCPData(int ClientID, Packet Data)
         {
             Data.InsertPacketLength();
-            TuringServer.Clients[ClientID].TCP.SendDataToClient(Data);
+            Server.Clients[ClientID].TCP.SendDataToClient(Data);
             Data.Dispose();
         }
 
         private static void SendTCPToAllClients(Packet Data)
         {
-            for (int i = 1; i < TuringServer.MaxClients; i++)
+            for (int i = 1; i < Server.MaxClients; i++)
             {
-                if (TuringServer.Clients[i].TCP.ConnectionSocket != null)
+                if (Server.Clients[i].TCP.ConnectionSocket != null)
                 {
                     Data.InsertPacketLength();
-                    TuringServer.Clients[i].TCP.SendDataToClient(Data);
+                    Server.Clients[i].TCP.SendDataToClient(Data);
                 }
             }
             Data.Dispose();
@@ -46,7 +46,8 @@ namespace TuringBackend.Networking
             Packet Data = new Packet();
 
             Data.Write((int)ServerSendPackets.SentFile);
-            Data.Write(ProjectInstance.LoadedProject.FileCacheLookup[FileName]);
+            Data.Write(ProjectInstance.LoadedProject.UpdateSubscribersLookup[FileName].VersionNumber);
+            Data.Write(ProjectInstance.LoadedProject.FileCacheLookup[FileName].FileData);
 
             SendTCPData(ClientID, Data);
         }
@@ -56,7 +57,7 @@ namespace TuringBackend.Networking
         {
             Packet Data = new Packet();
 
-            Data.Write((int)ServerSendPackets.FileUpdated);
+            Data.Write((int)ServerSendPackets.UpdatedFile);
 
             //
 

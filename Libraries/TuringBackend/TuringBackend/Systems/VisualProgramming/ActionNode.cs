@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TuringBackend
+namespace TuringBackend.Systems.VisualProgramming
 {
-    public abstract class TuringAction
+    class ActionNode
     {
-        public abstract void Execute(TuringMachine Machine);
+        TuringAction Action;
+        public Node StackChild;
     }
 }

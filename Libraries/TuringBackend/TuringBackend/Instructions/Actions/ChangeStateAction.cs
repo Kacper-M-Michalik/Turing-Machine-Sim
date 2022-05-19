@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TuringBackend.Actions
 {
-    public class ChangeStateAction : Action
+    public class ChangeStateAction : TuringAction
     {
         public string NewState;
         public override void Execute(TuringMachine Machine)

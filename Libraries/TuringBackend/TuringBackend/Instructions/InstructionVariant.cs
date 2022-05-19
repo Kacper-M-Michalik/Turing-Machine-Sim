@@ -9,6 +9,6 @@ namespace TuringBackend
     public class InstructionVariant
     {
         //Temp
-        public List<Action> Actions = new List<Action>();
+        public List<TuringAction> Actions = new List<TuringAction>();
     }
 }

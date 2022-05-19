@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using TuringBackend.Debugging;
 
 namespace TuringBackend
 {
@@ -54,11 +55,31 @@ namespace TuringBackend
             {
                 BasePath = Directory.GetParent(CorrectPath).ToString() + "\\",
                 ProjectFilePath = CorrectPath,
-                FileCacheLookup = new Dictionary<string, byte[]>(),
-                FileUpdateSubscriptionLookup = new Dictionary<string, HashSet<int>>()
+                FileCacheLookup = new Dictionary<string, CacheFileData>(),
+                UpdateSubscribersLookup = new Dictionary<string, UpdateFileData>()
             };
 
         }
 
+        public static bool LoadFileIntoCache(string FileName)
+        {
+            string FullFileDirectory = ProjectInstance.LoadedProject.BasePath + FileName;
+            if (File.Exists(FullFileDirectory))
+            {
+                try
+                {
+                    ProjectInstance.LoadedProject.FileCacheLookup.Add(FileName, new CacheFileData(File.ReadAllBytes(FullFileDirectory)));
+                    if (!ProjectInstance.LoadedProject.UpdateSubscribersLookup.ContainsKey(FileName)) ProjectInstance.LoadedProject.UpdateSubscribersLookup.Add(FileName, new UpdateFileData());
+                    return true;
+                }
+                catch (Exception E)
+                {
+                    CustomConsole.Log("Loader Error: LoadFileIntoCache - " + E.ToString());
+                    return false;
+                }                
+            }
+
+            return false;
+        }
     }
 }
