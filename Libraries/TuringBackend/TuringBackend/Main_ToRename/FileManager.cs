@@ -8,8 +8,20 @@ using TuringBackend.Debugging;
 
 namespace TuringBackend
 {
-    public static class Loader
+    public static class FileManager
     {
+        public static bool IsValidFileName(string FileName)
+        {
+            //Maybe rewrite using regex?
+            //https://docs.microsoft.com/en-gb/windows/win32/fileio/naming-a-file?redirectedfrom=MSDN for seeing banned characters
+            if (FileName.Contains('<') || FileName.Contains('>') || FileName.Contains(':') || FileName.Contains('"') || FileName.Contains('\\') || FileName.Contains('/') || FileName.Contains('|') || FileName.Contains('?') || FileName.Contains('*'))
+            {                
+                return false;
+            }
+
+            return true;
+        }
+
         public static Project LoadProjectFile(string Path)
         {
             string CorrectPath = "";
@@ -70,16 +82,31 @@ namespace TuringBackend
                 {
                     ProjectInstance.LoadedProject.FileCacheLookup.Add(FileName, new CacheFileData(File.ReadAllBytes(FullFileDirectory)));
                     if (!ProjectInstance.LoadedProject.UpdateSubscribersLookup.ContainsKey(FileName)) ProjectInstance.LoadedProject.UpdateSubscribersLookup.Add(FileName, new UpdateFileData());
-                    return true;
                 }
                 catch (Exception E)
                 {
-                    CustomConsole.Log("Loader Error: LoadFileIntoCache - " + E.ToString());
+                    CustomConsole.Log("File Manager Error: LoadFileIntoCache - " + E.ToString());
                     return false;
                 }                
             }
 
-            return false;
+            return true;
         }
+        
+        public static bool DeleteFile(string FileName)
+        {
+            try
+            {
+                File.Delete(ProjectInstance.LoadedProject.BasePath + FileName);
+            }
+            catch (Exception E)
+            {
+                CustomConsole.Log("File Manager Error: DeleteFile - " + E.ToString());
+                return false;
+            }
+
+            return true;
+        }
+
     }
 }

@@ -6,24 +6,26 @@ namespace TuringBackend.Networking
 {
     public enum ClientSendPackets
     {
-        CreateFile,
-        DeleteFile,
-        RenameFile,
-        MoveFile,
         RequestFile,
+        UnsubscribeFromUpdatesForFile,
+            
+        CreateFile,
         UpdateFile,
-        UnsubscribeFromUpdatesForFile
+        RenameMoveFile,
+        DeleteFile
     }
 
     public enum ServerSendPackets
     {
         ErrorNotification,
-        SentProjectFiles,
-        UpdatedProjectFiles,
-        SentFile, 
+
+        SentProjectData,
+        SentFile,
+
+        CreatedFile,
         UpdatedFile,
-        DeletedFile,
-        RenamedFile
+        RenamedFile,
+        DeletedFile
     }
 
     public class Packet : IDisposable
@@ -94,13 +96,14 @@ namespace TuringBackend.Networking
             return Result;
         }
 
-        public byte[] ReadBytes(bool MovePointer = true)
+        public byte[] ReadByteArray(bool MovePointer = true)
         {
             int Length = ReadInt();
             if (ReadPointerPosition + Length > ReadBuffer.Length) throw new Exception("ReadBytes Length out of bounds!");
             byte[] Result = new byte[Length];
             Array.Copy(ReadBuffer, Result, Length);
-            if (MovePointer) ReadPointerPosition += Length;
+            if (MovePointer) ReadPointerPosition += Length; 
+            else ReadPointerPosition -= 4;
             return Result;
         }
 
@@ -134,6 +137,7 @@ namespace TuringBackend.Networking
             if (ReadPointerPosition + Length > ReadBuffer.Length) throw new Exception("ReadString Length out of bounds!");
             string Result = Encoding.ASCII.GetString(ReadBuffer, ReadPointerPosition, Length);
             if (MovePointer) ReadPointerPosition += Length;
+            else ReadPointerPosition -= 4;
             return Result;
         }
 

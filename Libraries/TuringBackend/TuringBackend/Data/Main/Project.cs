@@ -34,6 +34,12 @@ namespace TuringBackend
             VersionNumber = 1;
             SubscriberIDs = new HashSet<int>();
         }
+
+        public UpdateFileData(UpdateFileData SetData)
+        {
+            VersionNumber = SetData.VersionNumber;
+            SubscriberIDs = SetData.SubscriberIDs;
+        }
     }
 
     public class Project

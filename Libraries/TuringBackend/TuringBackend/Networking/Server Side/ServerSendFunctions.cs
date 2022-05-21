@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TuringBackend.Networking
 {
@@ -62,6 +59,27 @@ namespace TuringBackend.Networking
             Data.Write(ProjectInstance.LoadedProject.FileCacheLookup[FileName].FileData);
 
             SendTCPData(ClientID, Data);
+        }
+
+        public static void SendFileRenamed(string OldFileName, string NewFileName)
+        {
+            Packet Data = new Packet();
+
+            Data.Write((int)ServerSendPackets.RenamedFile);
+            Data.Write(OldFileName);
+            Data.Write(NewFileName);
+
+            SendTCPToAllClients(Data);
+        }
+
+        public static void SendFileDeleted(string FileName)
+        {
+            Packet Data = new Packet();
+
+            Data.Write((int)ServerSendPackets.DeletedFile);
+            Data.Write(FileName);
+
+            SendTCPToAllClients(Data);
         }
         #endregion
     }

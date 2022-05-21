@@ -6,8 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using TuringBackend.Networking;
 using TuringBackend.Debugging;
-using System.Reflection;
-using System.Runtime.InteropServices;
 
 namespace TuringBackend
 {
@@ -19,7 +17,7 @@ namespace TuringBackend
 
         public static void StartProjectServer(string Location, int SetMaxClients, int SetPort)
         {
-            LoadedProject = Loader.LoadProjectFile(Location);
+            LoadedProject = FileManager.LoadProjectFile(Location);
             MaxClients = SetMaxClients;
             Port = SetPort;
 
