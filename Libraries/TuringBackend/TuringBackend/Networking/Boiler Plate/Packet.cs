@@ -36,13 +36,13 @@ namespace TuringBackend.Networking
 
         public Packet()
         {
-            TemporaryWriteBuffer = new List<byte>();
+            TemporaryWriteBuffer = new List<byte>(0);
             ReadPointerPosition = 0;
         }
 
         public Packet(byte[] Data)
         {
-            TemporaryWriteBuffer = new List<byte>();
+            TemporaryWriteBuffer = new List<byte>(0);
             ReadPointerPosition = 0;
             ReadBuffer = Data;
         }
@@ -50,9 +50,9 @@ namespace TuringBackend.Networking
 
         #region Writes
 
-        public void Write(byte[] Data)
+        public void Write(byte[] Data, bool AddLength = true)
         {
-            Write(Data.Length);
+            if (AddLength) Write(Data.Length);
             TemporaryWriteBuffer.AddRange(Data);
         }
 
@@ -91,7 +91,7 @@ namespace TuringBackend.Networking
         {
             if (ReadPointerPosition + Length > ReadBuffer.Length) throw new Exception("ReadBytes Length out of bounds!");
             byte[] Result = new byte[Length];
-            Array.Copy(ReadBuffer, Result, Length);
+            Array.Copy(ReadBuffer, ReadPointerPosition, Result, 0, Length);
             if (MovePointer) ReadPointerPosition += Length;
             return Result;
         }
@@ -101,7 +101,7 @@ namespace TuringBackend.Networking
             int Length = ReadInt();
             if (ReadPointerPosition + Length > ReadBuffer.Length) throw new Exception("ReadBytes Length out of bounds!");
             byte[] Result = new byte[Length];
-            Array.Copy(ReadBuffer, Result, Length);
+            Array.Copy(ReadBuffer, ReadPointerPosition, Result, 0, Length);
             if (MovePointer) ReadPointerPosition += Length; 
             else ReadPointerPosition -= 4;
             return Result;

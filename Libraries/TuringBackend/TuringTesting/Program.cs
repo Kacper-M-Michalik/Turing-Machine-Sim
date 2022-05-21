@@ -34,11 +34,31 @@ namespace TuringTesting
                         CustomConsole.Log("SERVER THREAD: " + Server.ServerThread.ManagedThreadId.ToString());
                         break;
                     case ("CREATE FILE"):
-                        ClientSendFunctions.CreateFile("test.tape");
+                        string CreateName = Console.ReadLine() + ".tape";
+                        ClientSendFunctions.CreateFile(CreateName);
                         break;
                     case ("REQUEST FILE"):
-                        ClientSendFunctions.RequestProjectFiles("a.tape", false);
-                        ClientSendFunctions.RequestProjectFiles("testtape2.tape", true);
+                        string RequestName = Console.ReadLine() + ".tape";
+                        ClientSendFunctions.RequestFile(RequestName+".tape", true);
+                        break;
+                    case ("RENAME FILE"):
+                        string OldName = Console.ReadLine() + ".tape";
+                        string NewName = Console.ReadLine() + ".tape";
+                        ClientSendFunctions.RenameOrMoveFile(OldName, NewName);
+                        break;
+                    case ("EDIT FILE"):
+                        string EditName = Console.ReadLine() + ".tape";
+                        int Version = Convert.ToInt32(Console.ReadLine());
+                        string NewContents = Console.ReadLine();
+                        ClientSendFunctions.UpdateFile(EditName, Version, NewContents);
+                        break;
+                    case ("DELETE FILE"):
+                        string DeleteName = Console.ReadLine() + ".tape";
+                        ClientSendFunctions.DeleteFile(DeleteName);
+                        break;
+                    case ("UNSUBSCRIBE"):
+                        string UnsubName = Console.ReadLine() + ".tape";
+                        ClientSendFunctions.UnsubscribeFromFileUpdates(UnsubName);
                         break;
                     case ("KILL CLIENT"):
                         Server.Clients[0].DisconnectClientFromServer();

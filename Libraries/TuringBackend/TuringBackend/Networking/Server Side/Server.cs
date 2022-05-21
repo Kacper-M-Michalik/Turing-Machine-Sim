@@ -232,7 +232,7 @@ namespace TuringBackend.Networking
 
                     CustomConsole.Log("SERVER: Server is receiving data from client " + ID.ToString() + "!");
 
-                    PacketCurrentlyBeingRebuilt.Write(UsefuldataBuffer);
+                    PacketCurrentlyBeingRebuilt.Write(UsefuldataBuffer, false);
                     PacketCurrentlyBeingRebuilt.SaveTemporaryBufferToPernamentReadBuffer();
 
                     if (PacketCurrentlyBeingRebuilt.UnreadLength() >= 4)
@@ -262,7 +262,6 @@ namespace TuringBackend.Networking
                 }
                 catch (Exception E)
                 {
-                    CustomConsole.Log("knew irt");
                     CustomConsole.Log(E.ToString());
                 }
             }

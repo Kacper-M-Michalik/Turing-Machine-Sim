@@ -82,15 +82,15 @@ namespace TuringBackend
                 {
                     ProjectInstance.LoadedProject.FileCacheLookup.Add(FileName, new CacheFileData(File.ReadAllBytes(FullFileDirectory)));
                     if (!ProjectInstance.LoadedProject.UpdateSubscribersLookup.ContainsKey(FileName)) ProjectInstance.LoadedProject.UpdateSubscribersLookup.Add(FileName, new UpdateFileData());
+                    return true;
                 }
                 catch (Exception E)
                 {
                     CustomConsole.Log("File Manager Error: LoadFileIntoCache - " + E.ToString());
-                    return false;
                 }                
             }
 
-            return true;
+            return false;
         }
         
         public static bool DeleteFile(string FileName)

@@ -112,7 +112,7 @@ namespace TuringBackend.Networking
                     byte[] UsefuldataBuffer = new byte[IncomingDataLength];
                     Array.Copy(ReceiveDataBuffer, UsefuldataBuffer, IncomingDataLength);
 
-                    PacketCurrentlyBeingRebuilt.Write(UsefuldataBuffer);
+                    PacketCurrentlyBeingRebuilt.Write(UsefuldataBuffer, false);
                     PacketCurrentlyBeingRebuilt.SaveTemporaryBufferToPernamentReadBuffer();
 
                     if (PacketCurrentlyBeingRebuilt.UnreadLength() >= 4)

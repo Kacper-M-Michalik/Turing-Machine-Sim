@@ -11,9 +11,10 @@ namespace TuringBackend.Networking
         public static Dictionary<int, PacketFunctionPointer> PacketToFunction = new Dictionary<int, PacketFunctionPointer>()
         {
             {(int)ClientSendPackets.CreateFile, UserCreatedNewFile},
-            {(int)ClientSendPackets.DeleteFile, UserDeletedFile},
             {(int)ClientSendPackets.RequestFile, UserRequestedFile},
-            {(int)ClientSendPackets.UpdateFile, UserEditedFile},
+            {(int)ClientSendPackets.UpdateFile, UserUpdatedFile},
+            {(int)ClientSendPackets.RenameMoveFile, UserRenamedFile},
+            {(int)ClientSendPackets.DeleteFile, UserDeletedFile},
             {(int)ClientSendPackets.UnsubscribeFromUpdatesForFile, UserUnsubscribedFromFileUpdates}        
         };
 
@@ -85,7 +86,7 @@ namespace TuringBackend.Networking
          * int FILE VERSION
          * byte[] NEW FILE DATA
          */
-        public static void UserEditedFile(int SenderClientID, Packet Data)
+        public static void UserUpdatedFile(int SenderClientID, Packet Data)
         {
             CustomConsole.Log("SERVER INSTRUCTION: User edited file.");
 
@@ -112,8 +113,10 @@ namespace TuringBackend.Networking
 
             try
             {
+                
                 //Replace with async here later?
                 File.WriteAllBytes(ProjectInstance.LoadedProject.BasePath + FileName, Data.ReadByteArray(false));
+                byte[] Debug = Data.ReadByteArray(false);
             }
             catch (Exception E)
             {
