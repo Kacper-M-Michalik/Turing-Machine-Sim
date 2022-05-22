@@ -186,16 +186,7 @@ namespace TuringBackend.Networking
             if (!FileManager.DeleteFile(OldFileName)) 
             {
                 ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to rename file - Server failed to clean old file.");
-
-                try
-                {
-                    File.Delete(NewFileDirectory);
-                }
-                catch (Exception E)
-                {
-                    CustomConsole.Log("Failed to clean up renamed file: " + E.ToString());
-                }
-
+                FileManager.DeleteFile(NewFileName);
                 return;
             }
 
