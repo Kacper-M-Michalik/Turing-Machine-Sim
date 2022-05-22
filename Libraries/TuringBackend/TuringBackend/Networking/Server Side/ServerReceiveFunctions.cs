@@ -214,7 +214,7 @@ namespace TuringBackend.Networking
         {
             string FileName = Data.ReadString();
 
-            if (!FileManager.DeleteFile(ProjectInstance.LoadedProject.BasePath + FileName))
+            if (!FileManager.DeleteFile(FileName))
             {
                 ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to delete file - Server failed to delete it.");
                 return;
