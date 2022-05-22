@@ -10,5 +10,10 @@ namespace TuringBackend.Systems.VisualProgramming
     {
         string AlphabetName;
         List<Node> StoredNodes;
+
+        public StateTable Compile()
+        {
+            return null;
+        }
     }
 }
