@@ -22,7 +22,7 @@ namespace TuringTesting
                 switch (Option.ToUpper())
                 {
                     case ("SERVER"):
-                        ProjectInstance.StartProjectServer("E:\\Professional Programming\\MAIN\\Turing-Machine-Sim\\TestLocation", 2, 28104);
+                        ProjectInstance.StartProjectServer("E:\\Professional Programming\\MAIN\\TestLocation", 2, 28104);
                         break;
                     case ("CONNECT"):
                         ClientInstance.ConnectToLocalServer(28104);

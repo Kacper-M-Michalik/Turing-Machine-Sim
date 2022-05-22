@@ -1,1 +1,0 @@
-It is a city and thickly populated residential locality. Two friends, Krishna, a qualified Civil Engineer and Shankar, a qualified Management degree holder lived with their family people and was neighbors.       

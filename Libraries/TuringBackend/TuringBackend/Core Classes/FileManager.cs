@@ -22,7 +22,7 @@ namespace TuringBackend
             return true;
         }
 
-        public static string PathToDirectory(string Path)
+        public static string PathParentDirectory(string Path)
         {
             int LastDirectoryIndex = Path.LastIndexOf("\\");
 
