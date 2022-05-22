@@ -12,7 +12,11 @@ namespace TuringBackend.Networking
         CreateFile,
         UpdateFile,
         RenameMoveFile,
-        DeleteFile
+        DeleteFile,
+
+        CreateFolder,
+        RenameMoveFolder,
+        DeleteFolder
     }
 
     public enum ServerSendPackets
@@ -25,7 +29,11 @@ namespace TuringBackend.Networking
         CreatedFile,
         UpdatedFile,
         RenamedFile,
-        DeletedFile
+        DeletedFile,
+
+        CreatedFolder,
+        RenamedFolder,
+        DeletedFolder
     }
 
     public class Packet : IDisposable

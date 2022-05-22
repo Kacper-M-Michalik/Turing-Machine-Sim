@@ -158,7 +158,7 @@ namespace TuringBackend.Networking
 
             if (File.Exists(NewFileDirectory))
             {
-                ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to rename file - File with this name already exists.");
+                ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to rename/move file - File with this name/location already exists.");
                 return;
             }
 
@@ -166,9 +166,15 @@ namespace TuringBackend.Networking
             {
                 if (!FileManager.LoadFileIntoCache(OldFileName))
                 {
-                    ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to retreive file - Server failed to load it.");
+                    ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to rename/move file - Server failed to load it.");
                     return;
                 }
+            }
+
+            if (!Directory.Exists(FileManager.PathToDirectory(NewFileDirectory)))
+            {
+                ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to move file - Target directory doesnt exist.");
+                return;
             }
 
             try
@@ -185,7 +191,7 @@ namespace TuringBackend.Networking
 
             if (!FileManager.DeleteFile(OldFileName)) 
             {
-                ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to rename file - Server failed to clean old file.");
+                ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to rename/move file - Server failed to clean old file.");
                 FileManager.DeleteFile(NewFileName);
                 return;
             }

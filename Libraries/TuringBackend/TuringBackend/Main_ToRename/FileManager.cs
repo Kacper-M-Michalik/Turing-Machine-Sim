@@ -14,12 +14,19 @@ namespace TuringBackend
         {
             //Maybe rewrite using regex?
             //https://docs.microsoft.com/en-gb/windows/win32/fileio/naming-a-file?redirectedfrom=MSDN for seeing banned characters
-            if (FileName.Contains('<') || FileName.Contains('>') || FileName.Contains(':') || FileName.Contains('"') || FileName.Contains('\\') || FileName.Contains('/') || FileName.Contains('|') || FileName.Contains('?') || FileName.Contains('*'))
+            if (FileName.Contains('<') || FileName.Contains('>') || FileName.Contains(':') || FileName.Contains('"') || FileName.Contains('/') || FileName.Contains('|') || FileName.Contains('?') || FileName.Contains('*'))
             {                
                 return false;
             }
 
             return true;
+        }
+
+        public static string PathToDirectory(string Path)
+        {
+            int LastDirectoryIndex = Path.LastIndexOf("\\");
+
+            return Path.Substring(0, LastDirectoryIndex);
         }
 
         public static Project LoadProjectFile(string Path)
