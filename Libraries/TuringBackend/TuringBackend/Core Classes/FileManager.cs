@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using TuringBackend.Debugging;
+using TuringBackend.SaveFiles;
+using System.Text.Json;
 
 namespace TuringBackend
 {
@@ -14,7 +16,7 @@ namespace TuringBackend
         {
             //Maybe rewrite using regex?
             //https://docs.microsoft.com/en-gb/windows/win32/fileio/naming-a-file?redirectedfrom=MSDN for seeing banned characters
-            if (FileName.Contains('<') || FileName.Contains('>') || FileName.Contains(':') || FileName.Contains('"') || FileName.Contains('/') || FileName.Contains('|') || FileName.Contains('?') || FileName.Contains('*'))
+            if (FileName.Contains('<') || FileName.Contains('>') || FileName.Contains(':') || FileName.Contains('"') || FileName.Contains('/') || FileName.Contains('\\') || FileName.Contains('|') || FileName.Contains('?') || FileName.Contains('*'))
             {                
                 return false;
             }
@@ -22,24 +24,31 @@ namespace TuringBackend
             return true;
         }
 
-        public static string PathParentDirectory(string Path)
+        public static string PathParentDirectory(string BasePath)
         {
-            int LastDirectoryIndex = Path.LastIndexOf("\\");
+            int LastDirectoryIndex = BasePath.LastIndexOf(Path.DirectorySeparatorChar);
 
-            return Path.Substring(0, LastDirectoryIndex);
+            return BasePath.Substring(0, LastDirectoryIndex);
         }
 
-        public static Project LoadProjectFile(string Path)
+        //ID 0 reserved for BaseFolder
+        static int NextID = 1;
+        public static int GetNewFileID()
+        {
+            return NextID++;
+        }
+
+        public static Project LoadProjectFile(string FilePath)
         {
             string CorrectPath = "";
-            if (Path.Substring(Path.Length-6) == ".tproj")
+            if (FilePath.Substring(FilePath.Length-6) == ".tproj")
             {
-                CorrectPath = Path;
+                CorrectPath = FilePath;
             }
             else
             {
                 //Search for tproj file
-                string[] AllFiles = Directory.GetFiles(Path);
+                string[] AllFiles = Directory.GetFiles(FilePath);
                 for (int i = 0; i < AllFiles.Length; i++)
                 {
                     if (AllFiles[i].Substring(AllFiles[i].Length - 6) == ".tproj")
@@ -52,59 +61,67 @@ namespace TuringBackend
 
             if (CorrectPath == "") return null;
 
-            //For now we strucutre tproj fiel like this:
-            //Settings, each is a setting name, =, and a value
-            //Those are hard coded in order for now
-            //Eventually we hit a line that contains:
-            //FILES
-            //This signifies everythign below is a included file directory
+            string ProjectBasePath = Directory.GetParent(CorrectPath).ToString() + Path.DirectorySeparatorChar;
 
-            //Considering Rewriting the whole thing to json later
-            //VS does xml for csproj but does something very similiar to what i have above for sln files.
+            string ProjectJson =  File.ReadAllText(CorrectPath);
+            ProjectFile ProjectData = JsonSerializer.Deserialize<ProjectFile>(ProjectJson);
 
-            string[] ProjectFileData =  File.ReadAllLines(CorrectPath);
+            Dictionary<int, string> NewFolderLocationLookup = new Dictionary<int, string>() { { 0, ProjectBasePath } };
+            Dictionary<int, PersistentFileData> NewPersistentDataLookup = new Dictionary<int, PersistentFileData>();
 
-            //get first line
-            //check if files header exists
-            //loop, if contaisn extension is a file, add to lookup, else is folder, will be used later for when construcitng directory object
-
-            //maybe instead of dir object just read full contents of folders through os each time - allwos for drag and drop trhoug fiel explorer?         
+            for (int i = 0; i < ProjectData.Folders.Count; i++)
+            {
+                NewFolderLocationLookup.Add(GetNewFileID(), ProjectBasePath + ProjectData.Folders[i].Replace('\\', Path.DirectorySeparatorChar));
+            }
+            for (int i = 0; i < ProjectData.Files.Count; i++)
+            {
+                NewPersistentDataLookup.Add(GetNewFileID(), new PersistentFileData(ProjectBasePath + ProjectData.Files[i].Replace('\\', Path.DirectorySeparatorChar)));
+            }
 
             return new Project()
             {
-                BasePath = Directory.GetParent(CorrectPath).ToString() + "\\",
+                BasePath = ProjectBasePath,
                 ProjectFilePath = CorrectPath,
-                FileCacheLookup = new Dictionary<string, CacheFileData>(),
-                UpdateSubscribersLookup = new Dictionary<string, UpdateFileData>()
+                CacheDataLookup = new Dictionary<int, CacheFileData>(),
+                PersistentDataLookup = NewPersistentDataLookup,
+                FolderLocationLookup = NewFolderLocationLookup
             };
 
         }
 
-        public static bool LoadFileIntoCache(string FileName)
+        public static bool LoadFileIntoCache(int FileID)
         {
-            string FullFileDirectory = ProjectInstance.LoadedProject.BasePath + FileName;
-            if (File.Exists(FullFileDirectory))
+            if (ProjectInstance.LoadedProject.PersistentDataLookup.ContainsKey(FileID))
             {
-                try
+                if (ProjectInstance.LoadedProject.CacheDataLookup.ContainsKey(FileID))
                 {
-                    ProjectInstance.LoadedProject.FileCacheLookup.Add(FileName, new CacheFileData(File.ReadAllBytes(FullFileDirectory)));
-                    if (!ProjectInstance.LoadedProject.UpdateSubscribersLookup.ContainsKey(FileName)) ProjectInstance.LoadedProject.UpdateSubscribersLookup.Add(FileName, new UpdateFileData());
+                    ProjectInstance.LoadedProject.CacheDataLookup[FileID].ResetExpiryTimer();
                     return true;
                 }
-                catch (Exception E)
+                else
                 {
-                    CustomConsole.Log("File Manager Error: LoadFileIntoCache - " + E.ToString());
-                }                
+                    try
+                    {
+                        ProjectInstance.LoadedProject.CacheDataLookup.Add(FileID, new CacheFileData(
+                                File.ReadAllBytes(ProjectInstance.LoadedProject.PersistentDataLookup[FileID].FileLocation)
+                            ));
+                        return true;
+                    }
+                    catch (Exception E)
+                    {
+                        CustomConsole.Log("File Manager Error: LoadFileIntoCache - " + E.ToString());
+                    }
+                }       
             }
 
             return false;
         }
         
-        public static bool DeleteFile(string FileName)
+        public static bool DeleteFileByPath(string FilePath)
         {
             try
             {
-                File.Delete(ProjectInstance.LoadedProject.BasePath + FileName);
+                File.Delete(FilePath);
             }
             catch (Exception E)
             {
@@ -114,6 +131,8 @@ namespace TuringBackend
 
             return true;
         }
+
+
 
     }
 }

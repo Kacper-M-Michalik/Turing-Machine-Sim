@@ -11,11 +11,13 @@ namespace TuringBackend.Networking
             
         CreateFile,
         UpdateFile,
-        RenameMoveFile,
+        RenameFile,
+        MoveFile,
         DeleteFile,
 
         CreateFolder,
-        RenameMoveFolder,
+        RenameFolder,
+        MoveFolder,
         DeleteFolder
     }
 
@@ -29,6 +31,7 @@ namespace TuringBackend.Networking
         CreatedFile,
         UpdatedFile,
         RenamedFile,
+        MovedFile,
         DeletedFile,
 
         CreatedFolder,

@@ -26,6 +26,8 @@ namespace TuringBackend.Networking
         public static void ReceivedFileFromServer(Packet Data)
         {
             CustomConsole.Log("CLIENT: Recieved File");
+            Data.ReadInt();
+            CustomConsole.Log(Encoding.ASCII.GetString(Data.ReadByteArray()));
             //need to have some sort of window to file context
             //when openining file, create window, window subrcibes to reiceive file, file gets sent to window
         }

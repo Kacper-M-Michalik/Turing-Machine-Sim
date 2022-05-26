@@ -103,13 +103,13 @@ namespace TuringBackend.Networking
                 }
 
                 long CurrentTime = DateTime.UtcNow.Ticks;
-                foreach (KeyValuePair<string, CacheFileData> CachedFile in ProjectInstance.LoadedProject.FileCacheLookup)
+                foreach (KeyValuePair<int, CacheFileData> CachedFile in ProjectInstance.LoadedProject.CacheDataLookup)
                 {
                     CachedFile.Value.ExpiryTimer += CurrentTime - LastTick;
 
                     if (CachedFile.Value.ExpiryTimer > CacheExpiryTime)
                     {
-                        ProjectInstance.LoadedProject.FileCacheLookup.Remove(CachedFile.Key);
+                        ProjectInstance.LoadedProject.CacheDataLookup.Remove(CachedFile.Key);
                     }
                 }
                 LastTick = CurrentTime;

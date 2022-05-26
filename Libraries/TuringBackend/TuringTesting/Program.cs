@@ -3,6 +3,10 @@ using TuringBackend;
 using TuringBackend.Debugging;
 using System.Threading;
 using TuringBackend.Networking;
+using System.Text.Json;
+using TuringBackend.SaveFiles;
+using System.Collections.Generic;
+using System.Text;
 
 namespace TuringTesting
 {
@@ -13,12 +17,24 @@ namespace TuringTesting
         {
             CustomConsole.Log("UI: APP RUNNING ON THREAD " + Thread.CurrentThread.ManagedThreadId.ToString());
 
+            /*
+            ProjectFile PF = new ProjectFile
+            {
+                Folders = new List<string>() { "Tapes\\" },
+                Files = new List<string>() { "Tapes\\newtape.tape", "Tapes\\TestTape.tape" }
+            };
+
+            JsonSerializerOptions Options = new JsonSerializerOptions { WriteIndented = true, IncludeFields = true };
+            string jsonString = JsonSerializer.Serialize<ProjectFile>(PF, Options);
+            System.IO.File.WriteAllBytes("E:\\Professional Programming\\MAIN\\TestLocation\\TestProject.tproj", Encoding.ASCII.GetBytes(jsonString));
+            */
+
             bool Continue = true;
             while (Continue)
             {
                 Client.ProcessPackets();                
                 string Option = Console.ReadLine();
-                
+
                 switch (Option.ToUpper())
                 {
                     case ("SERVER"):
@@ -33,32 +49,43 @@ namespace TuringTesting
                     case ("SERVERID"):
                         CustomConsole.Log("SERVER THREAD: " + Server.ServerThread.ManagedThreadId.ToString());
                         break;
-                    case ("CREATE FILE"):
-                        string CreateName = Console.ReadLine() + ".tape";
-                        ClientSendFunctions.CreateFile(CreateName);
+                    case ("CREATE"):
+                        int BaseFolder = Convert.ToInt32(Console.ReadLine());
+                        string CreateName = Console.ReadLine();
+                        ClientSendFunctions.CreateFile(BaseFolder, CreateName);
                         break;
-                    case ("REQUEST FILE"):
-                        string RequestName = Console.ReadLine() + ".tape";
-                        ClientSendFunctions.RequestFile(RequestName+".tape", true);
+                    case ("REQUEST"):
+                        int RequestID = Convert.ToInt32(Console.ReadLine());
+                        ClientSendFunctions.RequestFile(RequestID, true);
                         break;
-                    case ("RENAME FILE"):
-                        string OldName = Console.ReadLine() + ".tape";
-                        string NewName = Console.ReadLine() + ".tape";
-                        ClientSendFunctions.RenameOrMoveFile(OldName, NewName);
+                    case ("RENAME"):
+                        int RenameID = Convert.ToInt32(Console.ReadLine());
+                        string NewName = Console.ReadLine();
+                        ClientSendFunctions.RenameFile(RenameID, NewName);
                         break;
-                    case ("EDIT FILE"):
-                        string EditName = Console.ReadLine() + ".tape";
+                    case ("MOVE"):
+                        int MoveID = Convert.ToInt32(Console.ReadLine());
+                        int MoveFolderID = Convert.ToInt32(Console.ReadLine());
+                        ClientSendFunctions.MoveFile(MoveID, MoveFolderID);
+                        break;
+                    case ("EDIT"):
+                        int EditID = Convert.ToInt32(Console.ReadLine());
                         int Version = Convert.ToInt32(Console.ReadLine());
                         string NewContents = Console.ReadLine();
-                        ClientSendFunctions.UpdateFile(EditName, Version, NewContents);
+                        ClientSendFunctions.UpdateFile(EditID, Version, NewContents);
                         break;
-                    case ("DELETE FILE"):
-                        string DeleteName = Console.ReadLine() + ".tape";
-                        ClientSendFunctions.DeleteFile(DeleteName);
+                    case ("DELETE"):
+                        int DeleteID = Convert.ToInt32(Console.ReadLine());
+                        ClientSendFunctions.DeleteFile(DeleteID);
                         break;
-                    case ("UNSUBSCRIBE"):
-                        string UnsubName = Console.ReadLine() + ".tape";
-                        ClientSendFunctions.UnsubscribeFromFileUpdates(UnsubName);
+                    case ("UNSUB"):
+                        int UnsubID = Convert.ToInt32(Console.ReadLine());
+                        ClientSendFunctions.UnsubscribeFromFileUpdates(UnsubID);
+                        break;
+                    case ("CFOLDER"):
+                        int NBaseFolder = Convert.ToInt32(Console.ReadLine());
+                        string Name = Console.ReadLine();
+                        ClientSendFunctions.CreateFolder(NBaseFolder, Name);
                         break;
                     case ("KILL CLIENT"):
                         Server.Clients[0].DisconnectClientFromServer();

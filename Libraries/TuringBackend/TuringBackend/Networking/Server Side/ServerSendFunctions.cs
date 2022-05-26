@@ -38,46 +38,56 @@ namespace TuringBackend.Networking
             SendTCPData(ClientID, Data);
         }
 
-        public static void SendFile(int ClientID, string FileName)
+        public static void SendFile(int ClientID, int FileID)
         {
             Packet Data = new Packet();
 
             Data.Write((int)ServerSendPackets.SentFile);
-            Data.Write(ProjectInstance.LoadedProject.UpdateSubscribersLookup[FileName].VersionNumber);
-            Data.Write(ProjectInstance.LoadedProject.FileCacheLookup[FileName].FileData);
+            Data.Write(ProjectInstance.LoadedProject.PersistentDataLookup[FileID].VersionNumber);
+            Data.Write(ProjectInstance.LoadedProject.CacheDataLookup[FileID].FileData);
 
             SendTCPData(ClientID, Data);
         }
 
         //Unnecessary?
-        public static void SendFileUpdate(int ClientID, string FileName)
+        public static void SendFileUpdate(int ClientID, int FileID)
         {
             Packet Data = new Packet();
 
             Data.Write((int)ServerSendPackets.UpdatedFile);
-            Data.Write(ProjectInstance.LoadedProject.UpdateSubscribersLookup[FileName].VersionNumber);
-            Data.Write(ProjectInstance.LoadedProject.FileCacheLookup[FileName].FileData);
+            Data.Write(ProjectInstance.LoadedProject.PersistentDataLookup[FileID].VersionNumber);
+            Data.Write(ProjectInstance.LoadedProject.CacheDataLookup[FileID].FileData);
 
             SendTCPData(ClientID, Data);
         }
 
-        public static void SendFileRenamed(string OldFileName, string NewFileName)
+        public static void SendFileRenamed(int FileID)
         {
             Packet Data = new Packet();
 
             Data.Write((int)ServerSendPackets.RenamedFile);
-            Data.Write(OldFileName);
-            Data.Write(NewFileName);
+            ///
 
             SendTCPToAllClients(Data);
         }
 
-        public static void SendFileDeleted(string FileName)
+        public static void SendFileMoved(int FileID)
+        {
+            Packet Data = new Packet();
+
+            Data.Write((int)ServerSendPackets.MovedFile);
+            ///
+
+            SendTCPToAllClients(Data);
+        }
+
+
+        public static void SendFileDeleted(int FileID)
         {
             Packet Data = new Packet();
 
             Data.Write((int)ServerSendPackets.DeletedFile);
-            Data.Write(FileName);
+            Data.Write(FileID);
 
             SendTCPToAllClients(Data);
         }

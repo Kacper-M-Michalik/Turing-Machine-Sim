@@ -24,21 +24,17 @@ namespace TuringBackend
         }
     }
 
-    public class UpdateFileData
+    public class PersistentFileData
     {
         public int VersionNumber;
         public HashSet<int> SubscriberIDs;
+        public string FileLocation;
 
-        public UpdateFileData()
+        public PersistentFileData(string SetFileLocation)
         {
             VersionNumber = 1;
             SubscriberIDs = new HashSet<int>();
-        }
-
-        public UpdateFileData(UpdateFileData SetData)
-        {
-            VersionNumber = SetData.VersionNumber;
-            SubscriberIDs = SetData.SubscriberIDs;
+            FileLocation = SetFileLocation;
         }
     }
 
@@ -47,8 +43,9 @@ namespace TuringBackend
         public List<Alphabet> ProjectAlphabets;
 
         //Cache System
-        public Dictionary<string, CacheFileData> FileCacheLookup;
-        public Dictionary<string, UpdateFileData> UpdateSubscribersLookup;
+        public Dictionary<int, CacheFileData> CacheDataLookup;
+        public Dictionary<int, PersistentFileData> PersistentDataLookup;
+        public Dictionary<int, string> FolderLocationLookup;
 
         //Settigns in future:
         //rules
