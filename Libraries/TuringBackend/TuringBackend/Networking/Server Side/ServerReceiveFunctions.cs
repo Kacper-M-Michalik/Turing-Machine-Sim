@@ -27,7 +27,7 @@ namespace TuringBackend.Networking
         #region Main
 
         /* -PACKET LAYOUT-
-         * int File ID (IS FULL LOCAL DIRECTORY, NAME AND EXTENSION)
+         * int File ID
          * bool Subscribe To Updates (Whether or not client wants to recieve new version of file when it is updated)
          */
         public static void UserRequestedFile(int SenderClientID, Packet Data)
@@ -339,7 +339,7 @@ namespace TuringBackend.Networking
         }
 
         /* -PACKET LAYOUT-
-         * int FileID
+         * int File ID
          */
         public static void UserDeletedFile(int SenderClientID, Packet Data)
         {
@@ -376,7 +376,7 @@ namespace TuringBackend.Networking
         }
 
         /* -PACKET LAYOUT-
-         * int FileID
+         * int File ID
          */
         public static void UserUnsubscribedFromFileUpdates(int SenderClientID, Packet Data)
         {
@@ -552,8 +552,8 @@ namespace TuringBackend.Networking
         }
 
         /* -PACKET LAYOUT-
-         * int FolderID
-         * int TargetFolderID
+         * int Folder ID
+         * int Target Folder ID
          */
         public static void UserMovedFolder(int SenderClientID, Packet Data)
         {
@@ -635,7 +635,7 @@ namespace TuringBackend.Networking
         }
 
         /* -PACKET LAYOUT-
-         * string FOLDER STRING (IS FULL LOCAL DIRECTORY)
+         * int Folder ID
          */
         public static void UserDeletedFolder(int SenderClientID, Packet Data)
         {
