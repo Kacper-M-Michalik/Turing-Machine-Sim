@@ -24,15 +24,6 @@ namespace TuringBackend
             return true;
         }
 
-        /*
-        public static string PathParentDirectory(string BasePath)
-        {
-            int LastDirectoryIndex = BasePath.LastIndexOf(Path.DirectorySeparatorChar);
-
-            return BasePath.Substring(0, LastDirectoryIndex);
-        }
-        */
-
         //ID 0 reserved for BaseFolder
         static int NextID = 1;
         public static int GetNewFileID()
@@ -136,8 +127,6 @@ namespace TuringBackend
 
             return true;
         }
-
-
 
     }
 }

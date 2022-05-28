@@ -37,6 +37,10 @@ namespace TuringTesting
 
                 switch (Option.ToUpper())
                 {
+                    case ("START"):
+                        ProjectInstance.StartProjectServer("E:\\Professional Programming\\MAIN\\TestLocation", 2, 28104); 
+                        ClientInstance.ConnectToLocalServer(28104);
+                        break;
                     case ("SERVER"):
                         ProjectInstance.StartProjectServer("E:\\Professional Programming\\MAIN\\TestLocation", 2, 28104);
                         break;
@@ -86,6 +90,20 @@ namespace TuringTesting
                         int NBaseFolder = Convert.ToInt32(Console.ReadLine());
                         string Name = Console.ReadLine();
                         ClientSendFunctions.CreateFolder(NBaseFolder, Name);
+                        break;
+                    case ("RFOLDER"):
+                        int RFolder = Convert.ToInt32(Console.ReadLine());
+                        string Rename = Console.ReadLine();
+                        ClientSendFunctions.RenameFolder(RFolder, Rename);
+                        break;
+                    case ("MFOLDER"):
+                        int MFolder = Convert.ToInt32(Console.ReadLine()); 
+                        int MTFolder = Convert.ToInt32(Console.ReadLine());
+                        ClientSendFunctions.MoveFolder(MFolder, MTFolder);
+                        break;
+                    case ("DFOLDER"):
+                        int DFolder = Convert.ToInt32(Console.ReadLine());
+                        ClientSendFunctions.DeleteFolder(DFolder);
                         break;
                     case ("TESTS"):
                         ClientSendFunctions.CreateFile(0, "Tester.tape");

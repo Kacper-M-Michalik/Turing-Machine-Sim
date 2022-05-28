@@ -102,5 +102,37 @@ namespace TuringBackend.Networking
 
             SendTCPData(Data);
         }
+
+        public static void RenameFolder(int Folder, string NewName)
+        {
+            Packet Data = new Packet();
+
+            Data.Write((int)ClientSendPackets.RenameFolder);
+            Data.Write(Folder);
+            Data.Write(NewName);
+
+            SendTCPData(Data);
+        }
+
+        public static void MoveFolder(int Folder, int TargetFolder)
+        {
+            Packet Data = new Packet();
+
+            Data.Write((int)ClientSendPackets.MoveFolder);
+            Data.Write(Folder);
+            Data.Write(TargetFolder);
+
+            SendTCPData(Data);
+        }
+
+        public static void DeleteFolder(int Folder)
+        {
+            Packet Data = new Packet();
+
+            Data.Write((int)ClientSendPackets.DeleteFolder);
+            Data.Write(Folder);
+
+            SendTCPData(Data);
+        }
     }
 }

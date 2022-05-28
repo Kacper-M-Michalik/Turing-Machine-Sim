@@ -36,6 +36,7 @@ namespace TuringBackend.Networking
 
         CreatedFolder,
         RenamedFolder,
+        MovedFolder,
         DeletedFolder
     }
 

@@ -22,10 +22,15 @@ namespace TuringBackend
             ID = SetID;
             Name = SetName;
             ParentFolder = SetParentFolder;
-            LocalPath = ParentFolder == null ? "" : ParentFolder.LocalPath + Name + Path.DirectorySeparatorChar;
+            UpdatePath();
 
             SubFolders = new List<DirectoryFolder>();
             SubFiles = new List<DirectoryFile>();
+        }
+
+        public void UpdatePath()
+        {
+            LocalPath = ParentFolder == null ? "" : ParentFolder.LocalPath + Name + Path.DirectorySeparatorChar;
         }
     }
 

@@ -96,7 +96,15 @@ namespace TuringBackend.Networking
                         //Get Type
                         int PacketType = Data.ReadInt();
                         //Execute function
-                        ServerReceiveFunctions.PacketToFunction[PacketType](SenderID, Data);
+
+                        if (Enum.IsDefined(typeof(ClientSendPackets), PacketType))
+                        {
+                            ServerReceiveFunctions.PacketToFunction[PacketType](SenderID, Data);
+                        }
+                        else
+                        {
+                            CustomConsole.Log("SERVER: Invalid Packet recieved");
+                        }
                         Data.Dispose();
                     }
 

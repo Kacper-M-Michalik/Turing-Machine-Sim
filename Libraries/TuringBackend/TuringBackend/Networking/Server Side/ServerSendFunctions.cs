@@ -49,7 +49,6 @@ namespace TuringBackend.Networking
             SendTCPData(ClientID, Data);
         }
 
-        //Unnecessary?
         public static void SendFileUpdate(int ClientID, int FileID)
         {
             Packet Data = new Packet();
@@ -81,7 +80,6 @@ namespace TuringBackend.Networking
             SendTCPToAllClients(Data);
         }
 
-
         public static void SendFileDeleted(int FileID)
         {
             Packet Data = new Packet();
@@ -92,13 +90,52 @@ namespace TuringBackend.Networking
             SendTCPToAllClients(Data);
         }
 
-
         public static void SendFileUnsubscribed(int FileID)
         {
             Packet Data = new Packet();
 
             Data.Write((int)ServerSendPackets.DeletedFile);
             Data.Write(FileID);
+
+            SendTCPToAllClients(Data);
+        }
+
+        public static void SendFolderCreated(int FolderID)
+        {
+            Packet Data = new Packet();
+
+            Data.Write((int)ServerSendPackets.CreatedFolder);
+            Data.Write(FolderID);
+
+            SendTCPToAllClients(Data);
+        }
+
+        public static void SendFolderRenamed(int FolderID)
+        {
+            Packet Data = new Packet();
+
+            Data.Write((int)ServerSendPackets.RenamedFolder);
+            Data.Write(FolderID);
+
+            SendTCPToAllClients(Data);
+        }
+
+        public static void SendFolderMoved(int FolderID)
+        {
+            Packet Data = new Packet();
+
+            Data.Write((int)ServerSendPackets.MovedFolder);
+            Data.Write(FolderID);
+
+            SendTCPToAllClients(Data);
+        }
+
+        public static void SendFolderDeleted(int FolderID)
+        {
+            Packet Data = new Packet();
+
+            Data.Write((int)ServerSendPackets.DeletedFolder);
+            Data.Write(FolderID);
 
             SendTCPToAllClients(Data);
         }
