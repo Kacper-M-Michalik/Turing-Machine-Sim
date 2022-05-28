@@ -43,7 +43,7 @@ namespace TuringBackend.Networking
             Packet Data = new Packet();
 
             Data.Write((int)ServerSendPackets.SentFile);
-            Data.Write(ProjectInstance.LoadedProject.PersistentDataLookup[FileID].VersionNumber);
+            Data.Write(ProjectInstance.LoadedProject.FileDataLookup[FileID].Version);
             Data.Write(ProjectInstance.LoadedProject.CacheDataLookup[FileID].FileData);
 
             SendTCPData(ClientID, Data);
@@ -55,7 +55,7 @@ namespace TuringBackend.Networking
             Packet Data = new Packet();
 
             Data.Write((int)ServerSendPackets.UpdatedFile);
-            Data.Write(ProjectInstance.LoadedProject.PersistentDataLookup[FileID].VersionNumber);
+            Data.Write(ProjectInstance.LoadedProject.FileDataLookup[FileID].Version);
             Data.Write(ProjectInstance.LoadedProject.CacheDataLookup[FileID].FileData);
 
             SendTCPData(ClientID, Data);
@@ -83,6 +83,17 @@ namespace TuringBackend.Networking
 
 
         public static void SendFileDeleted(int FileID)
+        {
+            Packet Data = new Packet();
+
+            Data.Write((int)ServerSendPackets.DeletedFile);
+            Data.Write(FileID);
+
+            SendTCPToAllClients(Data);
+        }
+
+
+        public static void SendFileUnsubscribed(int FileID)
         {
             Packet Data = new Packet();
 

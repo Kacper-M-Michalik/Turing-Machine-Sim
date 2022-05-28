@@ -24,12 +24,14 @@ namespace TuringBackend
             return true;
         }
 
+        /*
         public static string PathParentDirectory(string BasePath)
         {
             int LastDirectoryIndex = BasePath.LastIndexOf(Path.DirectorySeparatorChar);
 
             return BasePath.Substring(0, LastDirectoryIndex);
         }
+        */
 
         //ID 0 reserved for BaseFolder
         static int NextID = 1;
@@ -64,10 +66,12 @@ namespace TuringBackend
             string ProjectBasePath = Directory.GetParent(CorrectPath).ToString() + Path.DirectorySeparatorChar;
 
             string ProjectJson =  File.ReadAllText(CorrectPath);
+
+            /*
             ProjectFile ProjectData = JsonSerializer.Deserialize<ProjectFile>(ProjectJson);
 
             Dictionary<int, string> NewFolderLocationLookup = new Dictionary<int, string>() { { 0, ProjectBasePath } };
-            Dictionary<int, PersistentFileData> NewPersistentDataLookup = new Dictionary<int, PersistentFileData>();
+            Dictionary<int, DirectoryFile> NewPersistentDataLookup = new Dictionary<int, DirectoryFile>();
 
             for (int i = 0; i < ProjectData.Folders.Count; i++)
             {
@@ -77,21 +81,22 @@ namespace TuringBackend
             {
                 NewPersistentDataLookup.Add(GetNewFileID(), new PersistentFileData(ProjectBasePath + ProjectData.Files[i].Replace('\\', Path.DirectorySeparatorChar)));
             }
+            */
 
             return new Project()
             {
                 BasePath = ProjectBasePath,
                 ProjectFilePath = CorrectPath,
                 CacheDataLookup = new Dictionary<int, CacheFileData>(),
-                PersistentDataLookup = NewPersistentDataLookup,
-                FolderLocationLookup = NewFolderLocationLookup
-            };
+                FileDataLookup = new Dictionary<int, DirectoryFile>() { },
+                FolderDataLookup = new Dictionary<int, DirectoryFolder>() { { 0, new DirectoryFolder(0, "", null) } }
+            };            
 
         }
 
         public static bool LoadFileIntoCache(int FileID)
         {
-            if (ProjectInstance.LoadedProject.PersistentDataLookup.ContainsKey(FileID))
+            if (ProjectInstance.LoadedProject.FileDataLookup.ContainsKey(FileID))
             {
                 if (ProjectInstance.LoadedProject.CacheDataLookup.ContainsKey(FileID))
                 {
@@ -103,7 +108,7 @@ namespace TuringBackend
                     try
                     {
                         ProjectInstance.LoadedProject.CacheDataLookup.Add(FileID, new CacheFileData(
-                                File.ReadAllBytes(ProjectInstance.LoadedProject.PersistentDataLookup[FileID].FileLocation)
+                                File.ReadAllBytes(ProjectInstance.LoadedProject.BasePath + ProjectInstance.LoadedProject.FileDataLookup[FileID].GetLocalPath())
                             ));
                         return true;
                     }

@@ -24,32 +24,16 @@ namespace TuringBackend
         }
     }
 
-    public class PersistentFileData
-    {
-        public int VersionNumber;
-        public HashSet<int> SubscriberIDs;
-        public string FileLocation;
-
-        public PersistentFileData(string SetFileLocation)
-        {
-            VersionNumber = 1;
-            SubscriberIDs = new HashSet<int>();
-            FileLocation = SetFileLocation;
-        }
-    }
-
     public class Project
     {
         public List<Alphabet> ProjectAlphabets;
 
         //Cache System
         public Dictionary<int, CacheFileData> CacheDataLookup;
-        public Dictionary<int, PersistentFileData> PersistentDataLookup;
-        public Dictionary<int, string> FolderLocationLookup;
+        public Dictionary<int, DirectoryFile> FileDataLookup;
+        public Dictionary<int, DirectoryFolder> FolderDataLookup;
 
-        //Settigns in future:
-        //rules
-        //cache all on startup
+        public DirectoryFolder ProjectDirectory;
 
         public string BasePath;
         public string ProjectFilePath;

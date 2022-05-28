@@ -87,6 +87,17 @@ namespace TuringTesting
                         string Name = Console.ReadLine();
                         ClientSendFunctions.CreateFolder(NBaseFolder, Name);
                         break;
+                    case ("TESTS"):
+                        ClientSendFunctions.CreateFile(0, "Tester.tape");
+                        ClientSendFunctions.RequestFile(1, true);
+                        ClientSendFunctions.RenameFile(1, "Renamed.tape");
+                        ClientSendFunctions.CreateFolder(0, "FirstFolder");
+                        ClientSendFunctions.MoveFile(1, 2);
+                        ClientSendFunctions.UpdateFile(1, 1, "Test Text");
+                        ClientSendFunctions.UnsubscribeFromFileUpdates(1);
+                        ClientSendFunctions.CreateFile(2, "Tester2.tape");
+                        ClientSendFunctions.DeleteFile(1);
+                        break;
                     case ("KILL CLIENT"):
                         Server.Clients[0].DisconnectClientFromServer();
                         break;

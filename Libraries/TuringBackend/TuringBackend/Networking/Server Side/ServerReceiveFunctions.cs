@@ -47,22 +47,18 @@ namespace TuringBackend.Networking
                 CustomConsole.Log("ServerReceive Error: Invalid request file packet recieved from client: " + SenderClientID.ToString());
                 return;
             }
-
-            if (!ProjectInstance.LoadedProject.CacheDataLookup.ContainsKey(FileID))
+           
+            if (!FileManager.LoadFileIntoCache(FileID))
             {
-                if (!FileManager.LoadFileIntoCache(FileID))
-                {
-                    ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to retreive file - Server failed to load it.");
-                    return;
-                }
-            }    
+                ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to retreive file - Server failed to load it.");
+                return;
+            }             
             
-            if (SubscribeToUpdates) ProjectInstance.LoadedProject.PersistentDataLookup[FileID].SubscriberIDs.Add(SenderClientID);
+            if (SubscribeToUpdates) ProjectInstance.LoadedProject.FileDataLookup[FileID].SubscriberIDs.Add(SenderClientID);
 
             ProjectInstance.LoadedProject.CacheDataLookup[FileID].ResetExpiryTimer();
             ServerSendFunctions.SendFile(SenderClientID, FileID);
         }
-
 
         /* -PACKET LAYOUT-
          * int Folder ID
@@ -90,13 +86,14 @@ namespace TuringBackend.Networking
                 ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to create file - File name uses invalid characters.");
                 return;
             }
-            if (!ProjectInstance.LoadedProject.FolderLocationLookup.ContainsKey(FolderID))
+            if (!ProjectInstance.LoadedProject.FolderDataLookup.ContainsKey(FolderID))
             {
                 ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to create file - Folder doesnt exist.");
                 return;
             }
 
-            string NewFileLocation = ProjectInstance.LoadedProject.FolderLocationLookup[FolderID] + FileName;
+            DirectoryFolder DirFolder = ProjectInstance.LoadedProject.FolderDataLookup[FolderID];
+            string NewFileLocation = ProjectInstance.LoadedProject.BasePath + DirFolder.LocalPath + FileName;
 
             if (File.Exists(NewFileLocation))
             {
@@ -116,11 +113,12 @@ namespace TuringBackend.Networking
             }
 
             int NewID = FileManager.GetNewFileID();
-            ProjectInstance.LoadedProject.PersistentDataLookup.Add(NewID, new PersistentFileData(NewFileLocation));
+            DirectoryFile NewFileData = new DirectoryFile(NewID, FileName, ProjectInstance.LoadedProject.FolderDataLookup[FolderID]);
+            ProjectInstance.LoadedProject.FileDataLookup.Add(NewID, NewFileData);
+            DirFolder.SubFiles.Add(NewFileData);
             FileManager.LoadFileIntoCache(NewID);
         }
                      
-
         /* -PACKET LAYOUT-
          * int File ID
          * int File Version
@@ -146,19 +144,16 @@ namespace TuringBackend.Networking
                 return;
             }
 
-            if (!ProjectInstance.LoadedProject.CacheDataLookup.ContainsKey(FileID))
-            {
-                if (!FileManager.LoadFileIntoCache(FileID))
-                {
-                    ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to update file - Server failed to load it.");
-                    return;
-                }
-            }
-
             //Possibly implement parsing bytes into actual object to see if it succeeds -> prevent users from sending corrupt files
 
-            PersistentFileData FileData = ProjectInstance.LoadedProject.PersistentDataLookup[FileID];
-            if (FileData.VersionNumber != FileVersion)
+            if (!ProjectInstance.LoadedProject.FileDataLookup.ContainsKey(FileID))
+            {
+                ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to update file - File doesn't exist.");
+                return;
+            }
+
+            DirectoryFile FileData = ProjectInstance.LoadedProject.FileDataLookup[FileID];
+            if (FileData.Version != FileVersion)
             {
                 ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to update file - You updated an older version of the file.");
                 return;
@@ -167,7 +162,7 @@ namespace TuringBackend.Networking
             try
             {                
                 //Replace with async here later?
-                File.WriteAllBytes(FileData.FileLocation, NewData);
+                File.WriteAllBytes(ProjectInstance.LoadedProject.BasePath + FileData.GetLocalPath(), NewData);
             }
             catch (Exception E)
             {
@@ -176,9 +171,21 @@ namespace TuringBackend.Networking
                 return;
             }
 
-            FileData.VersionNumber++;
+            if (!ProjectInstance.LoadedProject.CacheDataLookup.ContainsKey(FileID))
+            {
+                if (!FileManager.LoadFileIntoCache(FileID))
+                {
+                    ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to rename file - Server failed to load it.");
+                    return;
+                }
+            }
+            else
+            {
+                ProjectInstance.LoadedProject.CacheDataLookup[FileID].FileData = NewData;
+            }
 
-            ProjectInstance.LoadedProject.CacheDataLookup[FileID].FileData = NewData;
+            FileData.Version++;
+
             ProjectInstance.LoadedProject.CacheDataLookup[FileID].ResetExpiryTimer();
 
             foreach (int Client in FileData.SubscriberIDs)
@@ -188,13 +195,14 @@ namespace TuringBackend.Networking
             
         }
 
-
         /* -PACKET LAYOUT-
          * int File ID
          * string New File Name
          */
         public static void UserRenamedFile(int SenderClientID, Packet Data)
         {
+            CustomConsole.Log("SERVER INSTRUCTION: User renamed file.");
+
             int FileID;
             string NewFileName;
 
@@ -209,6 +217,12 @@ namespace TuringBackend.Networking
                 return;
             }
 
+            if (!FileManager.IsValidFileName(NewFileName))
+            {
+                ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to rename file - File name uses invalid characters.");
+                return;
+            }
+
             if (!ProjectInstance.LoadedProject.CacheDataLookup.ContainsKey(FileID))
             {
                 if (!FileManager.LoadFileIntoCache(FileID))
@@ -218,14 +232,9 @@ namespace TuringBackend.Networking
                 }
             }
 
-            if (!FileManager.IsValidFileName(NewFileName))
-            {
-                ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to rename file - File name uses invalid characters.");
-                return;
-            }
+            DirectoryFile FileData = ProjectInstance.LoadedProject.FileDataLookup[FileID];
 
-            PersistentFileData FileData = ProjectInstance.LoadedProject.PersistentDataLookup[FileID];
-            string NewFileLocation = FileManager.PathParentDirectory(FileData.FileLocation) + NewFileName;
+            string NewFileLocation = ProjectInstance.LoadedProject.BasePath + FileData.ParentFolder.LocalPath + Path.DirectorySeparatorChar + NewFileName;
 
             if (File.Exists(NewFileLocation))
             {
@@ -245,14 +254,14 @@ namespace TuringBackend.Networking
                 return;
             }
 
-            if (!FileManager.DeleteFileByPath(FileData.FileLocation)) 
+            if (!FileManager.DeleteFileByPath(ProjectInstance.LoadedProject.BasePath + FileData.GetLocalPath())) 
             {
                 ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to rename/move file - Server failed to clean old file.");
                 FileManager.DeleteFileByPath(NewFileLocation);
                 return;
             }
 
-            FileData.FileLocation = NewFileLocation;
+            FileData.Name = NewFileName;
 
             ServerSendFunctions.SendFileRenamed(FileID);
         }
@@ -263,6 +272,8 @@ namespace TuringBackend.Networking
          */
         public static void UserMovedFile(int SenderClientID, Packet Data)
         {
+            CustomConsole.Log("SERVER INSTRUCTION: User moved file.");
+
             int FileID;
             int NewFolderID;
 
@@ -277,23 +288,24 @@ namespace TuringBackend.Networking
                 return;
             }
 
-            if (!ProjectInstance.LoadedProject.CacheDataLookup.ContainsKey(FileID))
-            {
-                if (!FileManager.LoadFileIntoCache(FileID))
-                {
-                    ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to move file - Server failed to load it.");
-                    return;
-                }
-            }
-
-            if (!ProjectInstance.LoadedProject.FolderLocationLookup.ContainsKey(NewFolderID))
+            if (!ProjectInstance.LoadedProject.FolderDataLookup.ContainsKey(NewFolderID))
             {
                 ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to move file - Target folder doesn't exist.");
                 return;
             }
 
-            PersistentFileData FileData = ProjectInstance.LoadedProject.PersistentDataLookup[FileID];
-            string NewFileLocation = ProjectInstance.LoadedProject.FolderLocationLookup[NewFolderID] + FileData.FileLocation.Substring(FileData.FileLocation.LastIndexOf(Path.DirectorySeparatorChar)+1);
+            if (!ProjectInstance.LoadedProject.CacheDataLookup.ContainsKey(FileID))
+            {
+                if (!FileManager.LoadFileIntoCache(FileID))
+                {
+                    ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to rename file - Server failed to load it.");
+                    return;
+                }
+            }
+
+            DirectoryFile FileData = ProjectInstance.LoadedProject.FileDataLookup[FileID];
+            DirectoryFolder FolderData = ProjectInstance.LoadedProject.FolderDataLookup[NewFolderID];
+            string NewFileLocation = ProjectInstance.LoadedProject.BasePath + FolderData.LocalPath + FileData.Name;
 
             if (File.Exists(NewFileLocation))
             {
@@ -313,14 +325,15 @@ namespace TuringBackend.Networking
                 return;
             }
 
-            if (!FileManager.DeleteFileByPath(FileData.FileLocation))
+            if (!FileManager.DeleteFileByPath(ProjectInstance.LoadedProject.BasePath + FileData.GetLocalPath()))
             {
                 ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to rename/move file - Server failed to clean old file.");
                 FileManager.DeleteFileByPath(NewFileLocation);
                 return;
             }
 
-            FileData.FileLocation = NewFileLocation;
+            FileData.ParentFolder.SubFiles.Remove(FileData);
+            FileData.ParentFolder = FolderData;
 
             ServerSendFunctions.SendFileMoved(FileID);
         }
@@ -330,6 +343,8 @@ namespace TuringBackend.Networking
          */
         public static void UserDeletedFile(int SenderClientID, Packet Data)
         {
+            CustomConsole.Log("SERVER INSTRUCTION: User deleted file.");
+
             int FileID;
 
             try
@@ -342,20 +357,24 @@ namespace TuringBackend.Networking
                 return;
             }
 
-            if (!ProjectInstance.LoadedProject.PersistentDataLookup.ContainsKey(FileID))
+            if (!ProjectInstance.LoadedProject.FileDataLookup.ContainsKey(FileID))
             {
                 ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to delete file - File doesn't exist.");
                 return;
             }
 
-            if (!FileManager.DeleteFileByPath(ProjectInstance.LoadedProject.PersistentDataLookup[FileID].FileLocation))
+            DirectoryFile FileData = ProjectInstance.LoadedProject.FileDataLookup[FileID];
+
+            if (!FileManager.DeleteFileByPath(ProjectInstance.LoadedProject.BasePath + FileData.GetLocalPath()))
             {
                 ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to delete file - Server failed to delete it.");
                 return;
             }
 
-            if (ProjectInstance.LoadedProject.CacheDataLookup.ContainsKey(FileID)) ProjectInstance.LoadedProject.CacheDataLookup.Remove(FileID);
-            ProjectInstance.LoadedProject.PersistentDataLookup.Remove(FileID);
+            FileData.ParentFolder.SubFiles.Remove(FileData);
+
+            ProjectInstance.LoadedProject.CacheDataLookup.Remove(FileID);
+            ProjectInstance.LoadedProject.FileDataLookup.Remove(FileID);
 
             ServerSendFunctions.SendFileDeleted(FileID);
         }
@@ -365,6 +384,8 @@ namespace TuringBackend.Networking
          */
         public static void UserUnsubscribedFromFileUpdates(int SenderClientID, Packet Data)
         {
+            CustomConsole.Log("SERVER INSTRUCTION: User unsubed from file.");
+
             int FileID;
 
             try
@@ -377,9 +398,16 @@ namespace TuringBackend.Networking
                 return;
             }
 
+            if (!ProjectInstance.LoadedProject.FileDataLookup.ContainsKey(FileID))
+            {
+                ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to unsubscribe from file - File doesn't exist.");
+                return;
+            }
+
             CustomConsole.Log("SERVER INSTRUCTION: User "+SenderClientID.ToString()+" no longer recieiving updates to file "+ FileID.ToString()+".");
 
-            ProjectInstance.LoadedProject.PersistentDataLookup[FileID].SubscriberIDs.Remove(SenderClientID);
+            ProjectInstance.LoadedProject.FileDataLookup[FileID].SubscriberIDs.Remove(SenderClientID);
+            ServerSendFunctions.SendFileUnsubscribed(FileID);
         }
 
                 
@@ -391,6 +419,8 @@ namespace TuringBackend.Networking
          */
         public static void UserCreatedFolder(int SenderClientID, Packet Data)
         {
+            CustomConsole.Log("SERVER INSTRUCTION: User created folder.");
+
             int ParentFolderID;
             string NewFolderName;
 
@@ -411,11 +441,19 @@ namespace TuringBackend.Networking
                 return;
             }
 
-            string NewFolderDirectory = ProjectInstance.LoadedProject.FolderLocationLookup[ParentFolderID] + NewFolderName + Path.DirectorySeparatorChar;
+            if (!ProjectInstance.LoadedProject.FolderDataLookup.ContainsKey(ParentFolderID))
+            {
+                ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to create folder - Root folder doesn't exist.");
+                return;
+            }
+
+            DirectoryFolder ParentFolderData = ProjectInstance.LoadedProject.FolderDataLookup[ParentFolderID];
+
+            string NewFolderDirectory = ProjectInstance.LoadedProject.BasePath + ParentFolderData.LocalPath + NewFolderName + Path.DirectorySeparatorChar;
 
             if (Directory.Exists(NewFolderDirectory))
             {                
-                ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to create folder - Root folder doesn't exist.");
+                ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to create folder - Folder with this name already exists.");
                 return;     
             }
 
@@ -426,19 +464,42 @@ namespace TuringBackend.Networking
             catch (Exception E)
             {
                 CustomConsole.Log("ServerRecieve Error: UserCreatedFolder - " + E.ToString());
-                ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to create folder - Server failed to create the folder.");
+                ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to create folder - Server failed to create the folder locally.");
                 return;
             }
 
-            ProjectInstance.LoadedProject.FolderLocationLookup.Add(FileManager.GetNewFileID(), NewFolderDirectory);
+            int NewID = FileManager.GetNewFileID();
+            DirectoryFolder NewFolderData = new DirectoryFolder(NewID, NewFolderName, ParentFolderData);
+            ParentFolderData.SubFolders.Add(NewFolderData);
+            ProjectInstance.LoadedProject.FolderDataLookup.Add(NewID, NewFolderData);
         }
 
         /* -PACKET LAYOUT-
-         * string OLD FOLDER STRING (IS FULL LOCAL DIRECTORY)
-         * string NEW FOLDER STRING (IS FULL LOCAL DIRECTORY)
+         * int Folder ID
+         * string New Folder Name
          */
         public static void UserRenamedFolder(int SenderClientID, Packet Data)
         {
+            int FolderID;
+            string NewFolderName;
+
+            try
+            {
+                FolderID = Data.ReadInt();
+                NewFolderName = Data.ReadString();
+            }
+            catch
+            {
+                CustomConsole.Log("ServerReceive Error: Invalid delete file packet recieved from client: " + SenderClientID.ToString());
+                return;
+            }
+
+            if (!FileManager.IsValidFileName(NewFolderName))
+            {
+                ServerSendFunctions.SendErrorNotification(SenderClientID, "Failed to rename folder - New folder name invalid.");
+                return;
+            }
+
 
         }
 
