@@ -19,22 +19,31 @@ namespace TuringBackend.Debugging
 
         static CustomConsole()
         {
-            Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Turing Machine - Desktop");
-            LogFilePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Turing Machine - Desktop\\Log.txt";
-            LogStream = File.OpenWrite(LogFilePath);
+            Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar + "Turing Machine - Desktop");
+            LogFilePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar + "Turing Machine - Desktop" + Path.DirectorySeparatorChar + "Log--" + DateTime.Now.ToString("dd-MM-yyyy--HH-mm") + ".txt";
+
+            try
+            {
+                LogStream = File.Create(LogFilePath);
+            }
+            catch (Exception E)
+            {
+                LogPointer(E.ToString());
+            }
         }
 
         public static void Log(string Message)
         {           
             LogPointer(Message);
-            LogStream.Write(Encoding.ASCII.GetBytes(Message+"\n"));
-            LogStream.Flush();
+            LogStream?.Write(Encoding.ASCII.GetBytes(Message+"\n"));
+            LogStream?.Flush();
         }
+
         public static void Write(string Message)
         {
             WritePointer(Message);
-            LogStream.Write(Encoding.ASCII.GetBytes(Message));
-            LogStream.Flush();
+            LogStream?.Write(Encoding.ASCII.GetBytes(Message));
+            LogStream?.Flush();
         }
 
     }
