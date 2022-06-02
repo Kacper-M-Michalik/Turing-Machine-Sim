@@ -38,6 +38,12 @@ namespace TuringBackend.Networking
             SendTCPData(ClientID, Data);
         }
 
+        public static void SendProjectFiles()
+        {
+            //send rules
+            //send directory
+        }
+
         public static void SendFile(int ClientID, int FileID)
         {
             Packet Data = new Packet();

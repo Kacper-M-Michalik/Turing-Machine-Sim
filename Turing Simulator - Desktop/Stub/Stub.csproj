@@ -28,7 +28,7 @@
     <ProjectReference Include="..\*.csproj">
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\Turing Simulator - Desktop\Turing Simulator - Desktop.csproj">
+    <ProjectReference Include="..\Turing Simulator - Desktop.csproj">
       <Project>{864f9b5c-c858-4ce1-b2d7-9b55057c7812}</Project>
       <Name>Turing Simulator - Desktop</Name>
     </ProjectReference>

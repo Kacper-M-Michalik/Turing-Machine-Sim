@@ -45,6 +45,7 @@ namespace TuringBackend.Networking
                     
                     if (!IsConnected)
                     {
+                        CustomConsole.Log("CLIENT: Connection timed out.");
                         TCPInternalDisconnect();
                         UIEventBindings.ClientFailedConnecting?.Invoke(this, new EventArgs());
                     }                                    
