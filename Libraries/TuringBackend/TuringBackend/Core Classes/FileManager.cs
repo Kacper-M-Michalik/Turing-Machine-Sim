@@ -59,7 +59,17 @@ namespace TuringBackend
             if (CorrectPath == "") return null;
 
             string SaveFileJson = File.ReadAllText(CorrectPath);
-            ProjectSaveFile SaveFile = JsonSerializer.Deserialize<ProjectSaveFile>(SaveFileJson);
+            ProjectSaveFile SaveFile;
+
+            try
+            {
+                SaveFile = JsonSerializer.Deserialize<ProjectSaveFile>(SaveFileJson);
+            }
+            catch (Exception E)
+            {
+                CustomConsole.Log("File Manager Error - Load Project - " + E.ToString());
+                return null;
+            }
 
             string ProjectBasePath = Directory.GetParent(CorrectPath).ToString() + Path.DirectorySeparatorChar;
 

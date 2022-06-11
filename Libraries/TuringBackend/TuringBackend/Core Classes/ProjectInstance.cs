@@ -18,6 +18,10 @@ namespace TuringBackend
                 CustomConsole.Log("Loader Successful");
                 Server.StartServer(SetMaxClients, SetPort);                
             }
+            else
+            {
+                CustomConsole.Log("Loader Unsuccessful");
+            }
         }
 
         public static void CloseProject()
