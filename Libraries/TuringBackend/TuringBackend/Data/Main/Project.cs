@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
 
 namespace TuringBackend
 {
@@ -26,17 +22,21 @@ namespace TuringBackend
 
     public class Project
     {
-        public List<Alphabet> ProjectAlphabets;
-
         //Cache System
         public Dictionary<int, CacheFileData> CacheDataLookup;
         public Dictionary<int, DirectoryFile> FileDataLookup;
         public Dictionary<int, DirectoryFolder> FolderDataLookup;
 
-        public DirectoryFolder ProjectDirectory;
-
+        //Data
+        public string ProjectName;
         public string BasePath;
         public string ProjectFilePath;
+        public TuringProjectType TypeRule;
+
+        public DirectoryFolder BaseDirectoryFolder;
+
+        //TBD
+        public List<Alphabet> ProjectAlphabets;
 
 
         //Rules get sent to client -> client Ui responsible for telling uiser cant run turing with these rules, unless is server simulated turing

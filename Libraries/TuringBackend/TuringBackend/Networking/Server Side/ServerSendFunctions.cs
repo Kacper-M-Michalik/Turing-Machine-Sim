@@ -55,17 +55,6 @@ namespace TuringBackend.Networking
             SendTCPData(ClientID, Data);
         }
 
-        public static void SendFileUpdate(int ClientID, int FileID)
-        {
-            Packet Data = new Packet();
-
-            Data.Write((int)ServerSendPackets.UpdatedFile);
-            Data.Write(ProjectInstance.LoadedProject.FileDataLookup[FileID].Version);
-            Data.Write(ProjectInstance.LoadedProject.CacheDataLookup[FileID].FileData);
-
-            SendTCPData(ClientID, Data);
-        }
-
         public static void SendFileRenamed(int FileID)
         {
             Packet Data = new Packet();

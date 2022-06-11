@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 namespace TuringBackend
@@ -10,6 +7,7 @@ namespace TuringBackend
     public class DirectoryFolder
     {
         public int ID;
+
         public string Name;
         public DirectoryFolder ParentFolder;
         public string LocalPath;
@@ -30,17 +28,18 @@ namespace TuringBackend
 
         public void UpdatePath()
         {
-            LocalPath = ParentFolder == null ? "" : ParentFolder.LocalPath + Name + Path.DirectorySeparatorChar;
+            LocalPath = ParentFolder == null ? Name + Path.DirectorySeparatorChar : ParentFolder.LocalPath + Name + Path.DirectorySeparatorChar;
         }
     }
 
     public class DirectoryFile
     {
         public int ID;
-        public string Name;
         public int Version;
-        public DirectoryFolder ParentFolder;
         public HashSet<int> SubscriberIDs;
+
+        public string Name;
+        public DirectoryFolder ParentFolder;
 
         public DirectoryFile(int SetID, string SetName, DirectoryFolder SetParentFolder)
         {

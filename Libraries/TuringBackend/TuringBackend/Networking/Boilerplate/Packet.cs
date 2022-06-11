@@ -29,7 +29,7 @@ namespace TuringBackend.Networking
         SentFile,
 
         CreatedFile,
-        UpdatedFile,
+        //UpdatedFile,
         RenamedFile,
         MovedFile,
         DeletedFile,

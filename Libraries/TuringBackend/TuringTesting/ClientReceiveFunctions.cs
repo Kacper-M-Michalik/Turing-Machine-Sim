@@ -14,7 +14,6 @@ namespace TuringBackend.Networking
         {
             {(int)ServerSendPackets.ErrorNotification, ReceiveErrorNotification},
             {(int)ServerSendPackets.SentFile, ReceivedFileFromServer},
-            {(int)ServerSendPackets.UpdatedFile, ReceivedFileUpdateFromServer}
         };
 
 
@@ -26,15 +25,19 @@ namespace TuringBackend.Networking
         public static void ReceivedFileFromServer(Packet Data)
         {
             CustomConsole.Log("CLIENT: Recieved File");
-            Data.ReadInt();
-            CustomConsole.Log(Encoding.ASCII.GetString(Data.ReadByteArray()));
-            //need to have some sort of window to file context
-            //when openining file, create window, window subrcibes to reiceive file, file gets sent to window
+
+            if (UIEventBindings.DataSubscribers.ContainsKey(Data.ReadInt(false)))
+            {
+                List<ReceivedDataCallback> Callbacks = UIEventBindings.DataSubscribers[Data.ReadInt(false)];
+
+                int BasePointer = Data.ReadPointerPosition;
+                for (int i = 1; i < Callbacks.Count; i++)
+                {
+                    Callbacks[i](Data);
+                    Data.ReadPointerPosition = BasePointer;
+                }
+            }
         }
 
-        public static void ReceivedFileUpdateFromServer(Packet Data)
-        {
-            CustomConsole.Log("CLIENT: Recieved File");
-        }
     }
 }

@@ -92,8 +92,8 @@ namespace TuringBackend.Networking
                 return;
             }
 
-            DirectoryFolder DirFolder = ProjectInstance.LoadedProject.FolderDataLookup[FolderID];
-            string NewFileLocation = ProjectInstance.LoadedProject.BasePath + DirFolder.LocalPath + FileName;
+            DirectoryFolder ParentFolder = ProjectInstance.LoadedProject.FolderDataLookup[FolderID];
+            string NewFileLocation = ProjectInstance.LoadedProject.BasePath + ParentFolder.LocalPath + FileName;
 
             if (File.Exists(NewFileLocation))
             {
@@ -115,7 +115,7 @@ namespace TuringBackend.Networking
             int NewID = FileManager.GetNewFileID();
             DirectoryFile NewFileData = new DirectoryFile(NewID, FileName, ProjectInstance.LoadedProject.FolderDataLookup[FolderID]);
             ProjectInstance.LoadedProject.FileDataLookup.Add(NewID, NewFileData);
-            DirFolder.SubFiles.Add(NewFileData);
+            ParentFolder.SubFiles.Add(NewFileData);
             FileManager.LoadFileIntoCache(NewID);
         }
                      
@@ -190,9 +190,9 @@ namespace TuringBackend.Networking
 
             foreach (int Client in FileData.SubscriberIDs)
             {
-                ServerSendFunctions.SendFileUpdate(Client, FileID);
-            }
-            
+                //ServerSendFunctions.SendFileUpdate(Client, FileID);
+                ServerSendFunctions.SendFile(Client, FileID);
+            }            
         }
 
         /* -PACKET LAYOUT-

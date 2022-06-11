@@ -4,7 +4,6 @@ using TuringBackend.Debugging;
 using System.Threading;
 using TuringBackend.Networking;
 using System.Text.Json;
-using TuringBackend.SaveFiles;
 using System.Collections.Generic;
 using System.Text;
 
@@ -43,6 +42,9 @@ namespace TuringTesting
                         break;
                     case ("SERVER"):
                         ProjectInstance.StartProjectServer("E:\\Professional Programming\\MAIN\\TestLocation", 2, 28104);
+                        break;
+                    case ("SAVE"):
+                        FileManager.SaveProject();
                         break;
                     case ("CONNECT"):
                         ClientInstance.ConnectToLocalServer(28104);
@@ -105,21 +107,11 @@ namespace TuringTesting
                         int DFolder = Convert.ToInt32(Console.ReadLine());
                         ClientSendFunctions.DeleteFolder(DFolder);
                         break;
-                    case ("TESTS"):
-                        ClientSendFunctions.CreateFile(0, "Tester.tape");
-                        ClientSendFunctions.RequestFile(1, true);
-                        ClientSendFunctions.RenameFile(1, "Renamed.tape");
-                        ClientSendFunctions.CreateFolder(0, "FirstFolder");
-                        ClientSendFunctions.MoveFile(1, 2);
-                        ClientSendFunctions.UpdateFile(1, 1, "Test Text");
-                        ClientSendFunctions.UnsubscribeFromFileUpdates(1);
-                        ClientSendFunctions.CreateFile(2, "Tester2.tape");
-                        ClientSendFunctions.DeleteFile(1);
-                        break;
                     case ("KILL CLIENT"):
                         Server.Clients[0].DisconnectClientFromServer();
                         break;
                     case ("BREAKPOINT"):
+                        //Add breakpoint below
                         ProjectInstance.LoadedProject.GetType();
                         break;
                     case ("STOP"):

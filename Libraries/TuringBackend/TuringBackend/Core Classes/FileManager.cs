@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using TuringBackend.Debugging;
-using TuringBackend.SaveFiles;
 using System.Text.Json;
+using TuringBackend.SaveFiles;
 
 namespace TuringBackend
 {
@@ -16,13 +14,19 @@ namespace TuringBackend
         {
             //Maybe rewrite using regex?
             //https://docs.microsoft.com/en-gb/windows/win32/fileio/naming-a-file?redirectedfrom=MSDN for seeing banned characters
-            if (FileName.Contains('<') || FileName.Contains('>') || FileName.Contains(':') || FileName.Contains('"') || FileName.Contains('/') || FileName.Contains('\\') || FileName.Contains('|') || FileName.Contains('?') || FileName.Contains('*'))
+            if (FileName.Contains("<") || FileName.Contains(">") || FileName.Contains(":") || FileName.Contains("\"") || FileName.Contains("/") || FileName.Contains("\\") || FileName.Contains("|") || FileName.Contains("?") || FileName.Contains("*"))
             {                
                 return false;
             }
 
             return true;
         }
+        
+        public static string GetFileNameFromPath(string FilePath)
+        {
+            int Index = FilePath.LastIndexOf(Path.DirectorySeparatorChar) + 1;
+            return FilePath.Substring(Index);
+        } 
 
         //ID 0 reserved for BaseFolder
         static int NextID = 1;
@@ -54,33 +58,62 @@ namespace TuringBackend
 
             if (CorrectPath == "") return null;
 
+            string SaveFileJson = File.ReadAllText(CorrectPath);
+            ProjectSaveFile SaveFile = JsonSerializer.Deserialize<ProjectSaveFile>(SaveFileJson);
+
             string ProjectBasePath = Directory.GetParent(CorrectPath).ToString() + Path.DirectorySeparatorChar;
 
-            string ProjectJson =  File.ReadAllText(CorrectPath);
+            Dictionary<int, CacheFileData> NewCacheDataLookup = new Dictionary<int, CacheFileData>();
+            Dictionary<int, DirectoryFile> NewFileDataLookup = new Dictionary<int, DirectoryFile>();
+            DirectoryFolder BaseFolder = new DirectoryFolder(0, SaveFile.BaseFolder, null);
+            Dictionary<int, DirectoryFolder> NewFolderDataLookup = new Dictionary<int, DirectoryFolder>() { { 0, BaseFolder } };
 
-            /*
-            ProjectFile ProjectData = JsonSerializer.Deserialize<ProjectFile>(ProjectJson);
-
-            Dictionary<int, string> NewFolderLocationLookup = new Dictionary<int, string>() { { 0, ProjectBasePath } };
-            Dictionary<int, DirectoryFile> NewPersistentDataLookup = new Dictionary<int, DirectoryFile>();
-
-            for (int i = 0; i < ProjectData.Folders.Count; i++)
+            Queue<(string, DirectoryFolder)> FolderQueue = new Queue<(string, DirectoryFolder)>();
+            FolderQueue.Enqueue((ProjectBasePath + SaveFile.BaseFolder, null));
+            
+            while (FolderQueue.Count != 0)
             {
-                NewFolderLocationLookup.Add(GetNewFileID(), ProjectBasePath + ProjectData.Folders[i].Replace('\\', Path.DirectorySeparatorChar));
+                (string, DirectoryFolder) FolderInfo = FolderQueue.Dequeue();
+
+                DirectoryFolder NewFolder;
+                if (FolderInfo.Item2 == null)
+                {
+                    NewFolder = BaseFolder;
+                }
+                else
+                {
+                    NewFolder = new DirectoryFolder(GetNewFileID(), GetFileNameFromPath(FolderInfo.Item1), FolderInfo.Item2);
+                    NewFolderDataLookup.Add(NewFolder.ID, NewFolder);
+                    FolderInfo.Item2.SubFolders.Add(NewFolder);
+                }                
+
+                string[] Files = Directory.GetFiles(FolderInfo.Item1);
+                for (int i = 0; i < Files.Length; i++)
+                {
+                    DirectoryFile NewFileData = new DirectoryFile(GetNewFileID(), GetFileNameFromPath(Files[i]), NewFolder);
+                    NewFileDataLookup.Add(NewFileData.ID, NewFileData);
+                    NewFolder.SubFiles.Add(NewFileData);
+                }
+
+                string[] Folders = Directory.GetDirectories(FolderInfo.Item1); 
+                for (int i = 0; i < Folders.Length; i++)
+                {
+                    FolderQueue.Enqueue((Folders[i], NewFolder));
+                }
             }
-            for (int i = 0; i < ProjectData.Files.Count; i++)
-            {
-                NewPersistentDataLookup.Add(GetNewFileID(), new PersistentFileData(ProjectBasePath + ProjectData.Files[i].Replace('\\', Path.DirectorySeparatorChar)));
-            }
-            */
 
             return new Project()
             {
+                ProjectName = SaveFile.ProjectName,
+                TypeRule = SaveFile.TypeRule,
+                BaseDirectoryFolder = BaseFolder,
+
                 BasePath = ProjectBasePath,
                 ProjectFilePath = CorrectPath,
-                CacheDataLookup = new Dictionary<int, CacheFileData>(),
-                FileDataLookup = new Dictionary<int, DirectoryFile>() { },
-                FolderDataLookup = new Dictionary<int, DirectoryFolder>() { { 0, new DirectoryFolder(0, "", null) } }
+
+                CacheDataLookup = NewCacheDataLookup,
+                FileDataLookup = NewFileDataLookup,
+                FolderDataLookup = NewFolderDataLookup
             };            
 
         }
@@ -128,5 +161,23 @@ namespace TuringBackend
             return true;
         }
 
+
+
+        public static bool SaveProject()
+        {
+            JsonSerializerOptions Options = new JsonSerializerOptions() { WriteIndented = true };
+            string SaveJson = JsonSerializer.Serialize(new ProjectSaveFile(ProjectInstance.LoadedProject.ProjectName, ProjectInstance.LoadedProject.BaseDirectoryFolder.Name, ProjectInstance.LoadedProject.TypeRule), Options);
+
+            try
+            {
+                System.IO.File.WriteAllBytes(ProjectInstance.LoadedProject.ProjectFilePath, Encoding.ASCII.GetBytes(SaveJson));
+            }            
+            catch (Exception E)
+            {
+                CustomConsole.Log("File Manager Error: SaveProject - " + E.ToString());
+                return false;
+            }
+            return true;
+        }
     }
 }

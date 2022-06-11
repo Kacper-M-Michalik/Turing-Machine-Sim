@@ -20,7 +20,7 @@ namespace TuringBackend.Debugging
         static CustomConsole()
         {
             Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar + "Turing Machine - Desktop");
-            LogFilePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar + "Turing Machine - Desktop" + Path.DirectorySeparatorChar + "Log--" + DateTime.Now.ToString("dd-MM-yyyy--HH-mm") + ".txt";
+            LogFilePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + Path.DirectorySeparatorChar + "Turing Machine - Desktop" + Path.DirectorySeparatorChar + "Log--" + DateTime.Now.ToString("yyyy-MM-dd--HH-mm") + ".txt";
 
             try
             {
@@ -35,14 +35,16 @@ namespace TuringBackend.Debugging
         public static void Log(string Message)
         {           
             LogPointer(Message);
-            LogStream?.Write(Encoding.ASCII.GetBytes(Message+"\n"));
+            byte[] Data = Encoding.ASCII.GetBytes(Message + "\n");
+            LogStream?.Write(Data, 0, Data.Length);
             LogStream?.Flush();
         }
 
         public static void Write(string Message)
         {
             WritePointer(Message);
-            LogStream?.Write(Encoding.ASCII.GetBytes(Message));
+            byte[] Data = Encoding.ASCII.GetBytes(Message);
+            LogStream?.Write(Data, 0, Data.Length);
             LogStream?.Flush();
         }
 

@@ -1,15 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TuringBackend.Data
+﻿namespace TuringBackend
 {
-    public static class Rules
-    {
-
-
-
-    }
+    public enum TuringProjectType {Full, Strict}
 }
