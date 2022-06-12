@@ -11,8 +11,8 @@ config_version=4
 [application]
 
 config/name="Turing Simulator - Desktop"
-run/main_scene="res://Assets/MainScreen.tscn"
-config/icon="res://Assets/icon.png"
+run/main_scene="res://Assets/Other/MenuScreen.tscn"
+config/icon="res://Assets/Other/icon.png"
 
 [display]
 
@@ -27,4 +27,4 @@ common/enable_pause_aware_picking=true
 
 [rendering]
 
-environment/default_environment="res://Assets/default_env.tres"
+environment/default_environment="res://Assets/Other/default_env.tres"

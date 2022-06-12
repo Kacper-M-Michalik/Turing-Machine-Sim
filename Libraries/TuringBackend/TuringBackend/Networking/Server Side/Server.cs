@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using TuringBackend.Debugging;
+using TuringBackend.Logging;
 
 namespace TuringBackend.Networking
 {

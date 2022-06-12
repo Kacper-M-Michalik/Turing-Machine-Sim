@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TuringBackend.Debugging;
-using TuringBackend.Networking;
+using TuringBackend;
+using TuringBackend.Logging;
+using TuringFrontend.Networking;
 
-namespace TuringBackend.Networking
+namespace TuringFrontend.Networking
 {
     static class ClientReceiveFunctions
     {

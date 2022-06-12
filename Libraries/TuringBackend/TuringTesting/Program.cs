@@ -1,7 +1,8 @@
 ﻿using System;
 using TuringBackend;
-using TuringBackend.Debugging;
+using TuringBackend.Logging;
 using System.Threading;
+using TuringBackend.Networking;
 using TuringBackend.Networking;
 using System.Text.Json;
 using System.Collections.Generic;
@@ -42,6 +43,9 @@ namespace TuringTesting
                         break;
                     case ("SERVER"):
                         ProjectInstance.StartProjectServer("E:\\Professional Programming\\MAIN\\TestLocation", 2, 28104);
+                        break;
+                    case ("CPROJ"):
+                        FileManager.CreateProject("TestProj", "E:\\Professional Programming\\MAIN\\TestLocation\\newproj", TuringProjectType.Full);
                         break;
                     case ("SAVE"):
                         FileManager.SaveProject();

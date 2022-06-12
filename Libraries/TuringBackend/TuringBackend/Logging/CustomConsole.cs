@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
 
-namespace TuringBackend.Debugging
+namespace TuringBackend.Logging
 {
     public static class CustomConsole
     {
         public delegate void LogMethod(string Message);
-        public static LogMethod LogPointer = delegate (string Message) { Debug.WriteLine(Message); };//  new LogMethod(Debug.WriteLine);
-        public static LogMethod WritePointer = delegate (string Message) { Debug.Write(Message); };//  new LogMethod(Debug.WriteLine);
+        public static LogMethod LogPointer = delegate (string Message) { Debug.WriteLine(Message); };
+        public static LogMethod WritePointer = delegate (string Message) { Debug.Write(Message); };
 
         static string LogFilePath;
         static FileStream LogStream;

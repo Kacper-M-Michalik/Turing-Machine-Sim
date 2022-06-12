@@ -10,14 +10,14 @@ namespace TuringBackend.SaveFiles
         [JsonInclude]
         public string BaseFolder;
         [JsonInclude]
-        public TuringProjectType TypeRule;
+        public TuringProjectType TuringTypeRule;
 
         [JsonConstructor]
-        public ProjectSaveFile(string ProjectName, string BaseFolder, TuringProjectType TypeRule)
+        public ProjectSaveFile(string ProjectName, string BaseFolder, TuringProjectType TuringTypeRule)
         {
             this.ProjectName = ProjectName;
             this.BaseFolder = BaseFolder;
-            this.TypeRule = TypeRule;
+            this.TuringTypeRule = TuringTypeRule;
         }
     }
 }

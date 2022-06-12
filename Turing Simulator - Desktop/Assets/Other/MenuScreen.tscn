@@ -1,0 +1,60 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://Assets/Scripts/Window Managers/MenuScreenManager.cs" type="Script" id=1]
+
+[node name="Control" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_lock_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="MenuScreen" type="Node" parent="."]
+script = ExtResource( 1 )
+
+[node name="CreateProjectButton" type="Button" parent="MenuScreen"]
+margin_left = 701.0
+margin_top = 446.0
+margin_right = 979.0
+margin_bottom = 487.0
+text = "Create New Project"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LoadProjectButton" type="Button" parent="MenuScreen"]
+margin_left = 700.0
+margin_top = 498.0
+margin_right = 978.0
+margin_bottom = 539.0
+rect_pivot_offset = Vector2( -306, -143 )
+text = "Load Project"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="FileDialog" type="FileDialog" parent="."]
+visible = true
+margin_left = 1013.0
+margin_top = 286.0
+margin_right = 2003.0
+margin_bottom = 945.0
+popup_exclusive = true
+window_title = "Open a File"
+resizable = true
+mode = 0
+access = 2
+filters = PoolStringArray( "*.tproj; Turing Project Files" )
+show_hidden_files = true
+current_dir = "/Professional Programming/MAIN/TestLocation"
+current_file = "TestProject.tproj"
+current_path = "/Professional Programming/MAIN/TestLocation/TestProject.tproj"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[connection signal="pressed" from="MenuScreen/CreateProjectButton" to="MenuScreen" method="CreateProject"]
+[connection signal="pressed" from="MenuScreen/LoadProjectButton" to="MenuScreen" method="LoadProject"]
+[connection signal="dir_selected" from="FileDialog" to="MenuScreen" method="SelectedFile"]
+[connection signal="file_selected" from="FileDialog" to="MenuScreen" method="SelectedFile"]

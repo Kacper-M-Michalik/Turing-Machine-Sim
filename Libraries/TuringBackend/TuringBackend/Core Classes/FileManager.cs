@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using TuringBackend.Debugging;
+using TuringBackend.Logging;
 using System.Text.Json;
 using TuringBackend.SaveFiles;
 
@@ -115,7 +115,7 @@ namespace TuringBackend
             return new Project()
             {
                 ProjectName = SaveFile.ProjectName,
-                TypeRule = SaveFile.TypeRule,
+                TuringTypeRule = SaveFile.TuringTypeRule,
                 BaseDirectoryFolder = BaseFolder,
 
                 BasePath = ProjectBasePath,
@@ -171,16 +171,33 @@ namespace TuringBackend
             return true;
         }
 
-
+        public static bool CreateProject(string Name, string ProjectDirectory, TuringProjectType RuleType)
+        {
+            JsonSerializerOptions Options = new JsonSerializerOptions() { WriteIndented = true };
+            string SaveJson = JsonSerializer.Serialize(new ProjectSaveFile(Name, Name + "Data", RuleType), Options);
+            string ProjectPath = ProjectDirectory + Path.DirectorySeparatorChar + Name + ".tproj";
+            try
+            {
+                File.WriteAllBytes(ProjectPath, Encoding.ASCII.GetBytes(SaveJson));
+                Directory.CreateDirectory(ProjectDirectory + Path.DirectorySeparatorChar + Name + "Data");
+            }
+            catch (Exception E)
+            {
+                if (File.Exists(ProjectPath)) DeleteFileByPath(ProjectPath);
+                CustomConsole.Log("File Manager Error: CreateProject - " + E.ToString());
+                return false;
+            }
+            return true;
+        }
 
         public static bool SaveProject()
         {
             JsonSerializerOptions Options = new JsonSerializerOptions() { WriteIndented = true };
-            string SaveJson = JsonSerializer.Serialize(new ProjectSaveFile(ProjectInstance.LoadedProject.ProjectName, ProjectInstance.LoadedProject.BaseDirectoryFolder.Name, ProjectInstance.LoadedProject.TypeRule), Options);
+            string SaveJson = JsonSerializer.Serialize(new ProjectSaveFile(ProjectInstance.LoadedProject.ProjectName, ProjectInstance.LoadedProject.BaseDirectoryFolder.Name, ProjectInstance.LoadedProject.TuringTypeRule), Options);
 
             try
             {
-                System.IO.File.WriteAllBytes(ProjectInstance.LoadedProject.ProjectFilePath, Encoding.ASCII.GetBytes(SaveJson));
+                File.WriteAllBytes(ProjectInstance.LoadedProject.ProjectFilePath, Encoding.ASCII.GetBytes(SaveJson));
             }            
             catch (Exception E)
             {

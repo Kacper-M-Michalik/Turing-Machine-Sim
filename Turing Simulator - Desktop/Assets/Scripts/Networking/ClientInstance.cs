@@ -1,13 +1,11 @@
 ﻿using Godot;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Net;
 using System.Threading;
-using TuringBackend.Networking;
-using TuringBackend.Debugging;
+using TuringBackend;
+using TuringBackend.Logging;
+using TuringFrontend.Networking;
 
 public class ClientInstance : Node
 { 

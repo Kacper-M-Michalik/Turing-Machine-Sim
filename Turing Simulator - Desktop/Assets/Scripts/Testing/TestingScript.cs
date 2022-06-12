@@ -1,7 +1,7 @@
 using Godot;
 using System;
 using TuringBackend;
-using TuringBackend.Debugging;
+using TuringBackend.Logging;
 
 public class TestingScript : Control
 {

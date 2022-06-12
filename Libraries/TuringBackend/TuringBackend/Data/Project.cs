@@ -31,7 +31,7 @@ namespace TuringBackend
         public string ProjectName;
         public string BasePath;
         public string ProjectFilePath;
-        public TuringProjectType TypeRule;
+        public TuringProjectType TuringTypeRule;
 
         public DirectoryFolder BaseDirectoryFolder;
 

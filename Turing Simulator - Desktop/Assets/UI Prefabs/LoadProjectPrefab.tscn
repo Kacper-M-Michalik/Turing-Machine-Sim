@@ -1,0 +1,87 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Assets/Styles/Test.tres" type="StyleBox" id=1]
+[ext_resource path="res://Assets/Styles/TestFont.tres" type="DynamicFont" id=2]
+
+[node name="Panel" type="Panel"]
+margin_left = 95.0
+margin_top = 272.0
+margin_right = 1065.0
+margin_bottom = 879.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel" type="Panel" parent="."]
+margin_left = 25.0
+margin_top = 200.0
+margin_right = 25.0
+margin_bottom = 200.0
+rect_min_size = Vector2( 500, 50 )
+custom_styles/panel = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="Panel"]
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+margin_top = -7.0
+margin_bottom = 7.0
+text = " Project Location"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Button3" type="Button" parent="."]
+margin_left = 525.0
+margin_top = 200.0
+margin_right = 600.0
+margin_bottom = 250.0
+text = "Browse"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="."]
+margin_left = 25.0
+margin_top = 16.0
+margin_right = 327.0
+margin_bottom = 132.0
+custom_fonts/font = ExtResource( 2 )
+text = "Load Project"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CheckBox" type="CheckBox" parent="."]
+margin_left = 30.0
+margin_top = 277.0
+margin_right = 54.0
+margin_bottom = 301.0
+text = "Host"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LineEdit2" type="LineEdit" parent="."]
+margin_left = 41.0
+margin_top = 362.0
+margin_right = 196.0
+margin_bottom = 386.0
+text = "Port"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LineEdit" type="LineEdit" parent="."]
+margin_left = 42.0
+margin_top = 327.0
+margin_right = 197.0
+margin_bottom = 351.0
+rect_pivot_offset = Vector2( 73, 58 )
+text = "Maximum Users"
+__meta__ = {
+"_edit_use_anchors_": false
+}

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Threading;
 using TuringBackend.Networking;
-using TuringBackend.Debugging;
+using TuringBackend.Logging;
 
 namespace TuringBackend
 {
